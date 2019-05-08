@@ -41,7 +41,7 @@
         			<i class="fab fa-twitch"></i>
         		</a>
         		<a
-        			:href="'https://www.youtube.com/channel/' + user.youtube_url"
+        			:href="user.youtube_url"
         			target="_blank"
         			v-if="user.youtube_url != ''"
         		>
