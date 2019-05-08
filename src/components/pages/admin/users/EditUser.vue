@@ -41,11 +41,11 @@
 				.catch(e => console.log(e));
 			}
 		},
-		// beforeCreate() {
-		// 	if(!this.$store.getters.jwt) {
-		// 		this.$router.push('/admin');
-		// 	}
-		// },
+		beforeCreate() {
+			if(!this.$store.getters.jwt) {
+				this.$router.push('/admin');
+			}
+		},
 		created() {
 			this.$store.dispatch('getRoles');
 

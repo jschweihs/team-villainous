@@ -35,6 +35,11 @@
 				this.$store.dispatch('removeEntry', entry_id);
 			}
 		},
+		beforeCreate() {
+			if(!this.$store.getters.jwt) {
+				this.$router.push('/admin');
+			}
+		},
 		created() {
 			console.log('get blog');
 			this.$store.dispatch("getBlog");

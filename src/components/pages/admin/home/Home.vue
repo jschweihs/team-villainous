@@ -40,11 +40,11 @@
 				this.$store.dispatch('removeRole', id);
 			}
 		},
-		// beforeCreate() {
-		// 	if(!this.$store.getters.jwt) {
-		// 		this.$router.push('/admin');
-		// 	}
-		// },
+		beforeCreate() {
+			if(!this.$store.getters.jwt) {
+				this.$router.push('/admin');
+			}
+		},
 		created() {
 			this.$store.dispatch('getRoles');
 		}

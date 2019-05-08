@@ -18,11 +18,11 @@
 		components: {
 			UserForm
 		},
-		// beforeCreate() {
-		// 	if(!this.$store.getters.jwt) {
-		// 		this.$router.push('/admin');
-		// 	}
-		// },
+		beforeCreate() {
+			if(!this.$store.getters.jwt) {
+				this.$router.push('/admin');
+			}
+		},
 		computed: {
 			roles() {
 				return this.$store.getters.roles;

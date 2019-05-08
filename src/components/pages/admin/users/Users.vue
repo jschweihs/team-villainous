@@ -39,11 +39,11 @@
 				this.$store.dispatch('removeUser', user_id);
 			}
 		},
-		// beforeCreate() {
-		// 	if(!this.$store.getters.jwt) {
-		// 		this.$router.push('/admin');
-		// 	}
-		// },
+		beforeCreate() {
+			if(!this.$store.getters.jwt) {
+				this.$router.push('/admin');
+			}
+		},
 		created() {
 			this.$store.dispatch('getUsers');
 			this.$store.dispatch('getRoles');
