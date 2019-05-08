@@ -1,17 +1,17 @@
 <template>
   <div class="content half">
     <h1>Contact</h1>
-    <form>
-      <input type="text" v-model="name" placeholder="Name" required/>
-      <input type="text" v-model="email" placeholder="Email" required/>
-      <select v-modoel="category" required>
+    <form method="post" @submit.prevent="sendEmail">
+      <input type="text" v-model="email.name" placeholder="Name" required/>
+      <input type="text" v-model="email.address" placeholder="Email" required/>
+      <select v-modoel="email.category" required>
         <option value="" disabled selected hidden>Category</option>
         <option>Team Request</option>
         <option>Tournament Entry</option>
       </select>
       <textarea
         placeholder="Enter message here..."
-        v-model="message"
+        v-model="email.message"
         requried
       >
       </textarea>
@@ -22,19 +22,25 @@
 </template>
 
 <script>
+  import axios from 'axios';
   export default {
     data() {
       return {
-        name:       '',
-        email:      '',
-        category:   '',
-        message:    '',
-        submitted:  false
+        email: {
+          name:       '',
+          address:      '',
+          category:   '',
+          message:    ''
+        }
       };
     },
     methods: {
-      submitEmail() {
-        // Use axios to submit email
+      sendEmail() {
+        axios.post('http://teamvillainous.com/api/v1/file/send_email.php', {...this.email})
+        .then(res => {
+          console.log('submitted successfully');
+        })
+        .catch(e => console.log(e));
       }
     }
   }

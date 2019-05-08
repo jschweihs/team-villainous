@@ -2,44 +2,50 @@
   <div class="content">
     <h1>Upcoming Events</h1>
     <div class="upcoming-event">
-      <img src="/images/events/mes_apr5.png"/>
+      <img src="/images/events/dreamhack_dallas_2019.png" width="992"/>
       <div class="upcoming-event-details">
-        <h2>MES 2019</h2>
-        <p>COD</p>
-        <p>Schwee, Tiggie, Deprive</p>
-        <p>Chicago, IL</p>
-        <p>Sep. 29th, 2009 - Sep. 30th, 2009</p>
-        <p>Merch availible</p>
+        <h2>Dreamhack Dallas 2019</h2>
+        <p>Halo</p>
+        <p>Brianna will be attending</p>
+        <p>Dallas, TX</p>
+        <p>May 31st - June 2nd 2019</p>
+        <p>Business Cards Available</p>
       </div>
     </div>
     <h1>Past Events</h1>
     <ul class="past-events">
+      <li class="past-event past-event-alt">
+        <div class="past-event-detail past-event-name">MES 2019</div>
+        <div class="past-event-detail">Detroit, MI</div>
+        <div class="past-event-detail">05/05/2019-05/05/2019</div>
+        <div class="past-event-detail">
+          <span class="place bronze">
+            <i class="fas fa-trophy"></i>
+            3rd place
+          </span>, 5th place
+        </div>
+        <!-- <div class="past-event-detail">
+          5th place
+        </div> -->
+      </li>
       <li class="past-event">
         <div class="past-event-detail past-event-name">MES 2018</div>
         <div class="past-event-detail">Detroit, MI</div>
-        <div class="past-event-detail">09/31/2018-10/02/2018</div>
-        <div class="past-event-detail silver">
+        <div class="past-event-detail">10/26/2018-10/28/2018</div>
+        <div class="past-event-detail">
+          <span class="gold">
+            <i class="fas fa-trophy"></i>
+            1st place
+          </span>, 
+          <span class="silver">
+            <i class="fas fa-trophy"></i>
+            2nd place
+          </span>
+        </div>
+        <!-- <div class="past-event-detail silver">
           <i class="fas fa-trophy"></i>
           2nd place
-        </div>
-      </li>
-      <li class="past-event past-event-alt">
-        <div class="past-event-detail past-event-name">MES 2017</div>
-        <div class="past-event-detail">Orlando, FL</div>
-        <div class="past-event-detail">04/05/2017-04/07/2017</div>
-        <div class="past-event-detail bronze">
-          <i class="fas fa-trophy"></i>
-          3rd place
-        </div>
-      </li>
-      <li class="past-event">
-        <div class="past-event-detail past-event-name">MES 2016</div>
-        <div class="past-event-detail">Columbus, OH</div>
-        <div class="past-event-detail">04/03/2016-04/04/2016</div>
-        <div class="past-event-detail gold">
-          <i class="fas fa-trophy"></i>
-          1st place
-        </div>
+        </div> -->
       </li>
     </ul>
   </div>
@@ -104,7 +110,6 @@
   .past-event-detail {
     font-size: 16px;
     display: inline-block;
-    min-width: 100px;
     text-align: center;
     margin: 0;
     padding: 0;

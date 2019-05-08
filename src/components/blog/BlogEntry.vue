@@ -41,7 +41,10 @@
 					'December'
 				];
 				const month = months[date_array[1]-1];
-				const day = date_array[2];
+				let day = date_array[2];
+
+				day = day[0] == '0' ? day[1] : day;
+				
 				let suffix = 'th';
 				if(day == 1) { suffix = 'st' }
 				else if (day == 2) { suffix = 'nd' }
