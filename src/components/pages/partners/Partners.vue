@@ -12,7 +12,7 @@
         <a href="https://aporiacustoms.com/" target="_blank">
           <img width="180" height="180" src="/images/partners/aporiacustoms.jpg"/>
         </a>
-        <p>Aporia Customs is the sole producer for all Villainous merchanidse. Aporia Customs uses the highest quality of material offered and takes great pride in their hand crafted work. Do not forget to use code "ViL5" for 5% off at checkout! You can locate our store at the "Shop" tab in the navigation bar.</p>
+        <p>Aporia Customs is the sole producer for all Villainous merchandise. Aporia Customs uses the highest quality of material offered and takes great pride in their hand crafted work. Do not forget to use code "ViL5" for 5% off at checkout! You can locate our store at the "Shop" tab in the navigation bar.</p>
       </li>
     </ul>
   </div>
