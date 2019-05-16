@@ -2,7 +2,7 @@
 	<div class="content">
 		<h1>Team</h1>
 		<p class="page-description">
-			Our team is very diverse and we are proud to announce that we have a shit ton of people.  It's pretty cool and I think we will get even more if we continue to kick the ass we already kick.
+			If you are interested in joining Team Villainous then we would love to hear from you.  Head over to the Contact page and send us your information.  If we are interested then we will get back to you quickly!
 		</p>
 		<team-section 
 			v-if="user_groups && roles" 

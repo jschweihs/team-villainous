@@ -1,5 +1,5 @@
 <template>
-  <div class="content half">
+  <div class="content max-600">
     <h1>Partners</h1>
     <ul class="partners">
       <li class="partner">
@@ -58,6 +58,24 @@
 
   .partner:last-child {
     margin-bottom: 0;
+  }
+
+  @media screen and (max-width: 700px) {
+    .partner p {
+      font-size: 12px;
+    }
+  }
+
+  @media screen and (max-width: 450px) {
+    .partner p {
+      font-size: 10px;
+    }
+  }
+
+  @media screen and (max-width: 380px) {
+    .partner p {
+      font-size: 9px;
+    }
   }
 
 </style>
