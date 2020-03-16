@@ -125,6 +125,7 @@ const actions = {
     }
   },
   getCurrentUser: ({ commit, getters }) => {
+    console.log("Getting current user");
     return axios
       .get("//teamvillainous.com/api/v1/me", {
         headers: { Authorization: `Bearer ${getters.token}` }
@@ -183,6 +184,7 @@ const actions = {
     return axios
       .post("//teamvillainous.com/api/v1/login", login)
       .then(res => {
+        console.log("res", res);
         if (res.data.data) {
           Cookie.setCookie("token", res.data.data);
           commit("SET_TOKEN", res.data.data);
@@ -190,11 +192,19 @@ const actions = {
             .then(res => {
               return res;
             })
-            .catch(e => e);
+            .catch(e => {
+              console.log("e", e);
+              console.log(e.response);
+              return e;
+            });
         }
         return res;
       })
-      .catch(e => e);
+      .catch(e => {
+        console.log("e", e);
+        console.log(e.response);
+        return e;
+      });
   },
   logout: ({ commit }) => {
     commit("SET_TOKEN", null);

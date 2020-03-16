@@ -1,12 +1,9 @@
 <template>
   <div class="home">
-    <div class="main-banner"/>
+    <div class="main-banner" />
     <div class="home-container">
       <div class="blog" v-if="blog">
-        <blog-entry
-          v-for="entry in blog"
-          :key="entry.id"
-          :entry="entry"/>
+        <blog-entry v-for="entry in blog" :key="entry.id" :entry="entry" />
       </div>
       <div class="sidebar">
         <div class="sidebar-content">
@@ -20,7 +17,7 @@
               href="https://twitter.com/villainous_team?ref_src=twsrc%5Etfw"
             >
               Tweets by Team Villainous
-          </a>
+            </a>
           </twitter>
         </div>
       </div>
@@ -29,37 +26,35 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 
-  import {mapGetters} from 'vuex';
+import BlogEntry from "@components/blog/BlogEntry.vue";
 
-  import BlogEntry from './../../components/blog/BlogEntry.vue';
-
-  export default {
-    components: {
-      BlogEntry
-    },
-    data() {
-      return {
-        w_width: 300
-      };
-    },
-    computed: {
-      ...mapGetters([
-        'blog'
-      ])
-    },
-    created() {
-      this.$store.dispatch('showModal', true);
-      this.$store.dispatch('getBlog')
+export default {
+  components: {
+    BlogEntry
+  },
+  data() {
+    return {
+      w_width: 300
+    };
+  },
+  computed: {
+    ...mapGetters(["blog"])
+  },
+  created() {
+    this.$store.dispatch("showModal", true);
+    this.$store
+      .dispatch("getBlog")
       .then(res => {
-        this.$store.dispatch('showModal', false);
+        this.$store.dispatch("showModal", false);
       })
       .catch(e => {
-        this.$store.dispatch('showModal', true);
+        this.$store.dispatch("showModal", true);
         console.log(e);
       });
-    }
   }
+};
 </script>
 
 <style>
@@ -67,7 +62,7 @@
   /* background-color: #262626; */
 }
 .main-banner {
-  background-image:  url("/images/recruiting.png");
+  background-image: url("/images/recruiting.png");
   background-size: contain;
   padding-top: 28.64%;
   width: 100%;
@@ -85,9 +80,9 @@
   margin-top: 20px;
   padding: 20px;
   background-color: var(--color-grey-dark);
-  vertical-align:top;
+  vertical-align: top;
   border-radius: 30px;
-  box-shadow: 0 -2px 10px #1C1C1C;
+  box-shadow: 0 -2px 10px #1c1c1c;
 }
 
 .blog h1 {
@@ -107,7 +102,7 @@
 
 .blog p {
   text-indent: 16px;
-  letter-spacing: .25px;
+  letter-spacing: 0.25px;
   margin-bottom: 1rem;
 }
 
@@ -123,7 +118,7 @@
 }
 
 .sidebar {
-display: inline-block;
+  display: inline-block;
 }
 
 .sidebar-bg {
@@ -169,5 +164,4 @@ display: inline-block;
     display: none;
   }
 }
-
 </style>
