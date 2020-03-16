@@ -84,7 +84,7 @@ func AuthenticateEndpoint(ac *apictx.Context, h http.HandlerFunc) http.HandlerFu
 				errors.Default(ac.Logger, w, errors.New(http.StatusUnauthorized, "", err.Error()))
 				return
 			} else if err != nil {
-				ac.Logger.Printf("auth.GetMemberFromJWT() error: %s\n", err)
+				ac.Logger.Printf("auth.GetUserFromJWT() error: %s\n", err)
 				errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 				return
 			}
@@ -95,7 +95,7 @@ func AuthenticateEndpoint(ac *apictx.Context, h http.HandlerFunc) http.HandlerFu
 			return
 		}
 
-		// Pass member to request context and call next handler.
+		// Pass user to request context and call next handler.
 		ctx := context.WithValue(r.Context(), AuthKey, user)
 		h(w, r.WithContext(ctx))
 	}
@@ -162,7 +162,7 @@ func GetUserSigningKey(ac *apictx.Context, token string) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	// Get the member from the MemberID claim
+	// Get the user from the UserID claim
 	user, err := ac.Services.Users.GetByID(claims.UserID)
 	switch {
 	case err == users.ErrUserNotFound:
@@ -190,5 +190,6 @@ func GetUserFromRequest(r *http.Request) (*users.User, error) {
 
 		return nil, fmt.Errorf("Could not type assert AuthenticateUser from request context")
 	}
+
 	return user, nil
 }

@@ -4,7 +4,7 @@ import Cookie from "./../../utils/Cookie";
 
 const state = {
   users: null,
-  current_user: null,
+  user: null,
   token: Cookie.getCookie("token") || ""
 };
 
@@ -24,20 +24,20 @@ const mutations = {
   },
   UPDATE_USER(state, user) {
     if (state.users) {
-      const user_index = state.users.findIndex(u => user.id == u.id);
-      state.users[user_index] = user;
+      const userIndex = state.users.findIndex(u => user.id == u.id);
+      state.users[userIndex] = user;
     }
   },
-  REMOVE_USER(state, user_id) {
+  REMOVE_USER(state, userID) {
     state.users = state.users.filter(user => {
-      return user.id !== user_id;
+      return user.id !== useID;
     });
   },
   SET_TOKEN(state, token) {
     state.token = token;
   },
   SET_CURRENT_USER(state, user) {
-    state.current_user = user;
+    state.user = user;
   }
 };
 
@@ -61,31 +61,12 @@ const actions = {
                 }
               }
             )
-            .then(res => {})
-            .catch(e => console.log(e));
-        }
-      })
-      .catch(e => console.log(e));
-  },
-  setCurrentUser: ({ commit }, token) => {
-    return axios
-      .get("//teamvillainous.com/api/v1/users/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => {
-        if (res.data.username != "") {
-          // We have a user!
-          commit("SET_TOKEN", token);
-          commit("SET_CURRENT_USER", res.data.data);
+            .then(res => res)
+            .catch(e => e);
         }
         return res;
       })
-      .catch(e => console.log(e));
-  },
-  logoutUser: ({ commit }) => {
-    commit("SET_TOKEN", null);
-    commit("SET_CURRENT_USER", null);
-    Cookie.deleteCookie("token");
+      .catch(e => e);
   },
   getUsers: ({ commit, getters }) => {
     // Only hit api if users does not exist yet
@@ -94,10 +75,12 @@ const actions = {
         .get("//teamvillainous.com/api/v1/users/?status=1")
         .then(res => {
           commit("SET_USERS", res.data.data);
+          return res;
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
   },
+
   getUser: ({ commit, getters }, id) => {
     // Only hit api if user does not exist yet
     let exists = false;
@@ -114,10 +97,48 @@ const actions = {
         .get("//teamvillainous.com/api/v1/users/" + id)
         .then(res => {
           commit("SET_USER", res.data.data);
+          return res;
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
   },
+
+  getUser: ({ commit, getters }, id) => {
+    // Only hit api if user does not exist yet
+    let exists = false;
+    if (getters.users && getters.users.length > 0) {
+      getters.users.forEach(user => {
+        if (user.id == id) {
+          exists = true;
+        }
+      });
+    }
+
+    if (!exists) {
+      return axios
+        .get("//teamvillainous.com/api/v1/users/" + id)
+        .then(res => {
+          commit("SET_USER", res.data.data);
+          return res;
+        })
+        .catch(e => e);
+    }
+  },
+  getCurrentUser: ({ commit, getters }) => {
+    return axios
+      .get("//teamvillainous.com/api/v1/me", {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
+      .then(res => {
+        console.log("res from users/me", res);
+        if (res.data.data.username != "") {
+          commit("SET_CURRENT_USER", res.data.data);
+        }
+        return res;
+      })
+      .catch(e => e);
+  },
+
   updateUser: ({ commit }, payload) => {
     const user = payload.user;
 
@@ -137,41 +158,55 @@ const actions = {
                 }
               }
             )
-            .then(res => {})
-            .catch(e => console.log(e));
+            .then(res => res)
+            .catch(e => e);
+          return res;
         }
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   },
-  removeUser: ({ commit }, user_id) => {
-    console.log("deleting", user_id);
+  removeUser: ({ commit }, userID) => {
+    console.log("deleting", userID);
 
     return axios
       .delete("//teamvillainous.com/api/v1/users", {
-        data: { id: user_id }
+        data: { id: userID }
       })
       .then(res => {
         console.log("delete user res", res);
-        commit("REMOVE_USER", user_id);
+        commit("REMOVE_USER", userID);
+        return res;
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   },
-  loginUser: ({ commit }, login) => {
+  login: ({ commit, dispatch }, login) => {
     return axios
       .post("//teamvillainous.com/api/v1/login", login)
       .then(res => {
-        if (res.data.jwt) {
-          Cookie.setCookie("token", res.data.jwt);
-          commit("SET_JWT", res.data.jwt);
-          commit("SET_CURRENT_USER", res.data.user);
+        if (res.data.data) {
+          Cookie.setCookie("token", res.data.data);
+          commit("SET_TOKEN", res.data.data);
+          dispatch("getCurrentUser")
+            .then(res => {
+              return res;
+            })
+            .catch(e => e);
         }
+        return res;
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
+  },
+  logout: ({ commit }) => {
+    commit("SET_TOKEN", null);
+    commit("SET_CURRENT_USER", null);
+    Cookie.deleteCookie("token");
   }
 };
 
 const getters = {
+  // Returns the current set of users
   users: state => state.users,
+  // Returns a user by id
   user: state => {
     return id => {
       if (state.users && state.users.length > 0) {
@@ -179,7 +214,8 @@ const getters = {
       }
     };
   },
-  user_groups: state => {
+  // Returns users sorted into groups based on their role id
+  userGroups: state => {
     let groups = [];
     if (Array.isArray(state.users) && state.users.length > 0) {
       state.users.forEach(user => {
@@ -190,21 +226,21 @@ const getters = {
             users: [user]
           };
         } else {
-          let group_exists = false;
+          let groupExists = false;
           let i = 0;
           groups.forEach(group => {
             const role = user.role;
-            const group_name = group.name;
-            if (role == group_name) {
-              group_exists = true;
+            const groupName = group.name;
+            if (role == groupName) {
+              groupExists = true;
             }
-            if (group_exists && !added) {
+            if (groupExists && !added) {
               groups[i].users.push(user);
               added = true;
             }
             i++;
           });
-          if (!group_exists) {
+          if (!groupExists) {
             groups.push({
               name: user.role,
               users: [user]
@@ -222,16 +258,19 @@ const getters = {
     groups.forEach(group => {
       // I THINK 9 is the hard coded ID for owners...yikes
       if (group.name == 9) {
-        const temp_group = groups[0];
+        const temp = groups[0];
         groups[0] = group;
-        groups[i] = temp_group;
+        groups[i] = temp;
       }
       i++;
     });
     return groups;
   },
+  // Returns the login token
   token: state => state.token,
-  currentUser: state => state.currentUser,
+  // Returns the current user based on the login token
+  currentUser: state => state.user,
+  // Returns if the current user is allowed admin privileges
   isCurrentAdmin: state => {
     if (state.currentUser) {
       return state.currentUser.priviledge_id == 2;

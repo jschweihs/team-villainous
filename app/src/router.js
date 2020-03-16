@@ -11,7 +11,7 @@ import Shop from "./pages/shop/Shop.vue";
 import Contact from "./pages/contact/Contact.vue";
 
 // Admin
-import AdminLogin from "./pages/admin/login/Login.vue";
+import AdminLogin from "./pages/login/Login.vue";
 import AdminHome from "./pages/admin/home/Home.vue";
 import AdminRoles from "./pages/admin/roles/Roles.vue";
 import AdminUsers from "./pages/admin/users/Users.vue";

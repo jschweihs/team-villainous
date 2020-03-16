@@ -2,7 +2,6 @@ package users
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -96,6 +95,7 @@ func New(ac *apictx.Context, router *httprouter.Router) {
 	router.POST("/api/v1/users", auth.AuthenticateEndpoint(ac, HandlePost(ac)))
 	router.GET("/api/v1/users", HandleGet(ac))
 	router.GET("/api/v1/users/:id", HandleGetUser(ac))
+	router.GET("/api/v1/me", auth.AuthenticateEndpoint(ac, HandleGetMe(ac)))
 	router.PUT("/api/v1/users/:id", auth.AuthenticateEndpoint(ac, HandleUpdate(ac)))
 	router.DELETE("/api/v1/users/:id", auth.AuthenticateEndpoint(ac, HandleDelete(ac)))
 }
@@ -106,7 +106,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servusers.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Printf("Could not decode json")
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
@@ -120,7 +119,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Try to create a new user
 		user, err := ac.Services.Users.New(&params)
 		if pes, ok := err.(*serverrors.ParamErrors); ok && err != nil {
-			fmt.Println("Here")
 			errors.Params(ac.Logger, w, http.StatusBadRequest, pes)
 			return
 		} else if err != nil {
@@ -210,8 +208,6 @@ func HandleGet(ac *apictx.Context) http.HandlerFunc {
 			params.Status = 0
 		}
 
-		fmt.Printf("%v\n", params.Status)
-
 		// Handle offset
 		if offsetqs, ok := r.URL.Query()["offset"]; ok && len(offsetqs) == 1 {
 			offset64, err := strconv.ParseInt(offsetqs[0], 10, 32)
@@ -242,7 +238,6 @@ func HandleGet(ac *apictx.Context) http.HandlerFunc {
 
 		// Return if there were errors
 		if errs.Length() > 0 {
-			fmt.Println("Got here1")
 			errors.Multiple(ac.Logger, w, http.StatusBadRequest, errs)
 			return
 		}
@@ -250,7 +245,6 @@ func HandleGet(ac *apictx.Context) http.HandlerFunc {
 		// Try to get the users
 		users, err := ac.Services.Users.Get(params)
 		if err != nil {
-			fmt.Println("Got here2")
 			ac.Logger.Printf("users.Get() service error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
@@ -338,7 +332,7 @@ func HandleGet(ac *apictx.Context) http.HandlerFunc {
 	}
 }
 
-// HandleGetAll handles the /api/v1/users GET route of the API
+// HandleGetUser handles the /api/v1/users GET route of the API
 func HandleGetUser(ac *apictx.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var id int
@@ -410,6 +404,61 @@ func HandleGetUser(ac *apictx.Context) http.HandlerFunc {
 			return
 		}
 
+	}
+}
+
+// HandleGetMe handles the /api/v1/me GET route of the API
+func HandleGetMe(ac *apictx.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Get this user from the request context
+		// This validates that this user exists and has their token
+		user, err := auth.GetUserFromRequest(r)
+		if err != nil {
+			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
+			return
+		}
+
+		// Create a new result
+		result := ResultGetUser{
+			Data: &User{
+				ID:            user.ID,
+				Username:      user.Username,
+				Password:      user.Password,
+				Email:         user.Email,
+				FName:         user.FName,
+				MName:         user.MName,
+				LName:         user.LName,
+				Title:         user.Title,
+				Address:       user.Address,
+				City:          user.City,
+				Province:      user.Province,
+				Zip:           user.Zip,
+				Country:       user.Country,
+				BirthDate:     user.BirthDate,
+				Description:   user.Description,
+				Role:          user.Role,
+				PrivilegeID:   user.PrivilegeID,
+				Status:        user.Status,
+				FacebookURL:   user.FacebookURL,
+				TwitterURL:    user.TwitterURL,
+				InstagramURL:  user.InstagramURL,
+				TwitchURL:     user.TwitchURL,
+				YoutubeURL:    user.YoutubeURL,
+				OtherURL:      user.OtherURL,
+				PS4Gamertag:   user.PS4Gamertag,
+				XBoxGamertag:  user.XBoxGamertag,
+				SteamGamertag: user.SteamGamertag,
+				CreatedAt:     user.CreatedAt,
+				UpdatedAt:     user.UpdatedAt,
+			},
+		}
+
+		// Render output.
+		if err := render.JSON(w, true, result); err != nil {
+			ac.Logger.Printf("render.JSON() error: %s\n", err)
+			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
+			return
+		}
 	}
 }
 
@@ -537,7 +586,7 @@ func HandleDelete(ac *apictx.Context) http.HandlerFunc {
 				ID: id,
 			},
 		}
-		fmt.Printf("%v", result)
+
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
 			ac.Logger.Printf("render.JSON() error: %s\n", err)
