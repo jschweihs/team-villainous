@@ -1,15 +1,23 @@
 .DS_Store
 
-node_modules/
+app/node_modules/
+app/.browserslistrc
 
 dist/
+graphics/
+
+
 npm-debug.log
 yarn-error.log
 
 # Editor directories and files
+.vscode/
 .idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-api/v1/config/database.php
+vil.code-workspace
+dev/
+public/
+*config.json
