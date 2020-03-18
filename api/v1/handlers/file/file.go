@@ -58,7 +58,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		}
 
 		// Get new image name
-		name := url.QueryEscape(r.FormValue("name"))
+		name := strings.Replace(url.QueryEscape(r.FormValue("name")), "+", "%20", -1)
 		if name == "" {
 			errs.Add(errors.New(http.StatusBadRequest, "name", ErrNameInvalid.Error()))
 		}

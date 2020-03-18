@@ -180,7 +180,9 @@ export default {
                       ...this.edituser,
                       password: "",
                       profile_picture:
-                          "/images/users/ViL_" + this.edituser.username + ".jpg"
+                          "/images/users/ViL_" +
+                          encodeURIComponent(this.edituser.username) +
+                          ".jpg"
                   }
                 : {
                       username: "",
