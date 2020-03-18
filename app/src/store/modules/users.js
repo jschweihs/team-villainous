@@ -42,24 +42,32 @@ const mutations = {
 };
 
 const actions = {
+  // Add a new user
   addUser: ({ commit, getters }, payload) => {
-    console.log("payload", payload);
+    // Get user from payload
     const user = payload.user;
-    console.log("final user", user);
+
+    // Add user to database
     return axios
       .post("//teamvillainous.com/api/v1/users", user, {
         headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
-        console.log("res", res);
-        commit("ADD_USER", { ...user, id: res.data.id });
-        // Upload new image if the path was altered
+        // Check for errors
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else if (res.data.data.username != "") {
+          // Add new user to state
+          commit("ADD_USER", { ...user, id: res.data.id });
+        }
+
+        // Check if image was provided
         if (payload.image_path != "") {
-          // Save image to server
-          console.log(
-            "checkpoint: addUser action payload.image",
-            JSON.stringify(payload.image)
-          );
+          // Save profile image
           return axios
             .post("//teamvillainous.com/api/v1/upload", payload.image, {
               headers: {
@@ -67,23 +75,12 @@ const actions = {
                 Authorization: `Bearer ${getters.token}`
               }
             })
-            .then(res => {
-              console.log("Upload res", res);
-              return res;
-            })
-            .catch(e => {
-              console.log("upload e", e);
-              console.log("Upload e.response", e.response);
-              return e;
-            });
+            .then(res => res)
+            .catch(e => e);
         }
         return res;
       })
-      .catch(e => {
-        console.log("e", e);
-        console.log("e.response", e.response);
-        return e;
-      });
+      .catch(e => e);
   },
   getUsers: ({ commit, getters }) => {
     // Only hit api if users does not exist yet

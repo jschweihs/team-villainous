@@ -219,11 +219,8 @@ export default {
     },
     computed: {
         dob() {
-            console.log("this user", JSON.stringify(this.user));
-            console.log("this user dob", JSON.stringify(this.user.birth_date));
             if (this.user.birth_date) {
                 const dates = this.user.birth_date.split("/");
-                console.log("Dates", JSON.stringify(dates));
                 return dates[2] + "-" + dates[0] + "-" + dates[1];
             }
         },
@@ -293,14 +290,6 @@ export default {
             this.user.birth_date =
                 date_array[1] + "/" + date_array[2] + "/" + date_array[0];
         }
-
-        document.onkeypress = function(e) {
-            e = e || window.event;
-            console.log(
-                "document.activeElement.tagName;",
-                document.activeElement.tagName
-            );
-        };
     },
     directives: { mask }
 };

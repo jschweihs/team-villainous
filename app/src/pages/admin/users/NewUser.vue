@@ -22,7 +22,6 @@ export default {
     methods: {
         // Add a new user
         addUser(user) {
-            console.log("user", user);
             return this.$store
                 .dispatch("addUser", user)
                 .then(res => {
