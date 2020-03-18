@@ -1,131 +1,154 @@
 <template>
-  <div>
-    <form @submit.prevent="save">
-      <div class="flex">
-        <div class="profile-pic">
-          <div class="picture-preview">
-            <label class="img-label">Profile Picture</label>
-            <img
-              width="260"
-              height="260"
-              :src="user.profile_picture"
-              onclick="document.getElementById('profile-picture').click()"
-            />
-            <label for="profile-picture" class="file-label">Select</label>
-            <input
-              type="file"
-              id="profile-picture"
-              accept="image/jpeg"
-              ref="profilepicture"
-              v-model="image_path"
-              @change="uploadImage"
-            />
-          </div>
-        </div>
-        <div class="main-info">
-          <label>Username*</label>
-          <input type="text" v-model="user.username" />
-          <label>Email*</label>
-          <input type="text" v-model="user.email" />
-          <div v-if="!edituser">
-            <label>Password*</label>
-            <input type="password" v-model="user.password" />
-            <label>Password Confirm*</label>
-            <input type="password" v-model="user.password_confirm" />
-          </div>
-          <label>Role*</label>
-          <select v-model="user.role">
-            <option v-for="role in roles" :key="role.id" :value="role.id">
-              {{ role.name }}
-            </option>
-          </select>
-          <label>Title</label>
-          <input type="text" v-model="user.title" />
-        </div>
-      </div>
+    <div>
+        <form @submit.prevent="save" enctype="multipart/form-data">
+            <div class="flex">
+                <div class="profile-pic">
+                    <div class="picture-preview">
+                        <label class="img-label">Profile Picture</label>
+                        <img
+                            width="260"
+                            height="260"
+                            :src="user.profile_picture"
+                            onclick="document.getElementById('profile-picture').click()"
+                        />
+                        <label for="profile-picture" class="file-label">Select</label>
+                        <input
+                            type="file"
+                            id="profile-picture"
+                            accept="image/jpeg"
+                            ref="profilepicture"
+                            v-model="image_path"
+                            @change="uploadImage"
+                        />
+                    </div>
+                </div>
+                <div class="main-info">
+                    <label>Username*</label>
+                    <input
+                        type="text"
+                        v-model="user.username"
+                        :class="{'form-error': !validUsername && showError}"
+                    />
+                    <label>Email*</label>
+                    <input
+                        type="text"
+                        v-model="user.email"
+                        :class="{'form-error': !validEmail && showError}"
+                    />
+                    <div v-if="!edituser">
+                        <label>Password*</label>
+                        <input
+                            type="password"
+                            v-model="user.password"
+                            :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                        />
+                        <label>Password Confirm*</label>
+                        <input
+                            type="password"
+                            v-model="passwordMatch"
+                            :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                        />
+                    </div>
+                    <label>Role*</label>
+                    <select v-model="user.role" :class="{'form-error': !validRole && showError}">
+                        <option
+                            v-for="role in roles"
+                            :key="role.id"
+                            :value="role.id"
+                        >{{ role.name }}</option>
+                    </select>
+                    <label>Title</label>
+                    <input type="text" v-model="user.title" />
+                </div>
+            </div>
 
-      <hr />
+            <hr />
 
-      <div class="flex">
-        <div class="two-column mr-10">
-          <label>First Name*</label>
-          <input type="text" v-model="user.f_name" />
-          <label>Middle Name</label>
-          <input type="text" v-model="user.m_name" />
-          <label>Last Name</label>
-          <input type="text" v-model="user.l_name" />
-          <label>Description</label>
-          <textarea v-model="user.description"></textarea>
-        </div>
-        <div class="two-column ml-10">
-          <label>Date of Birth</label>
-          <input
-            type="text"
-            placeholder="mm/dd/yyyy"
-            v-model="user.birth_date"
-            v-mask="'##/##/####'"
-          />
-          <label>Address</label>
-          <input type="text" v-model="user.address" />
-          <label>City</label>
-          <input type="text" v-model="user.city" />
-          <div v-if="user.country == 'United States'">
-            <label>State</label>
-            <select v-model="user.province">
-              <option v-for="state in states" :key="state" :value="state">
-                {{ state }}
-              </option>
-            </select>
-          </div>
-          <div v-else>
-            <label>Province</label>
-            <input type="text" v-model="user.province" />
-          </div>
+            <div class="flex">
+                <div class="two-column mr-10">
+                    <label>First Name*</label>
+                    <input
+                        type="text"
+                        v-model="user.f_name"
+                        :class="{'form-error': !validFName && showError}"
+                    />
+                    <label>Middle Name</label>
+                    <input type="text" v-model="user.m_name" />
+                    <label>Last Name</label>
+                    <input type="text" v-model="user.l_name" />
+                    <label>Description</label>
+                    <textarea v-model="user.description"></textarea>
+                </div>
+                <div class="two-column ml-10">
+                    <label>Date of Birth</label>
+                    <input
+                        type="text"
+                        placeholder="mm/dd/yyyy"
+                        v-model="user.birth_date"
+                        v-mask="'##/##/####'"
+                    />
+                    <label>Address</label>
+                    <input type="text" v-model="user.address" />
+                    <label>City</label>
+                    <input type="text" v-model="user.city" />
+                    <div v-if="user.country == 'United States'">
+                        <label>State</label>
+                        <select v-model="user.province">
+                            <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
+                        </select>
+                    </div>
+                    <div v-else>
+                        <label>Province</label>
+                        <input type="text" v-model="user.province" />
+                    </div>
 
-          <label>Zip code</label>
-          <input type="text" v-model="user.zip" />
-          <label>Country</label>
-          <select v-model="user.country" @change="user.province = ''">
-            <option
-              v-for="country in countries"
-              :key="country"
-              :value="country"
-            >
-              {{ country }}
-            </option>
-          </select>
-        </div>
-      </div>
+                    <label>Zip code</label>
+                    <input type="text" v-model="user.zip" />
+                    <label>Country</label>
+                    <select v-model="user.country" @change="user.province = ''">
+                        <option
+                            v-for="country in countries"
+                            :key="country"
+                            :value="country"
+                        >{{ country }}</option>
+                    </select>
+                </div>
+            </div>
 
-      <hr />
+            <hr />
 
-      <label>Facebook</label>
-      <input type="text" v-model="user.facebook_url" />
-      <label>Twitter</label>
-      <input type="text" v-model="user.twitter_url" />
-      <label>Instagram</label>
-      <input type="text" v-model="user.instagram_url" />
-      <label>Twitch</label>
-      <input type="text" v-model="user.twitch_url" />
-      <label>Youtube</label>
-      <input type="text" v-model="user.youtube_url" />
-      <label>Other</label>
-      <input type="text" v-model="user.other_url" />
+            <label>Facebook</label>
+            <input type="text" v-model="user.facebook_url" />
+            <label>Twitter</label>
+            <input type="text" v-model="user.twitter_url" />
+            <label>Instagram</label>
+            <input type="text" v-model="user.instagram_url" />
+            <label>Twitch</label>
+            <input type="text" v-model="user.twitch_url" />
+            <label>Youtube</label>
+            <input type="text" v-model="user.youtube_url" />
+            <label>Other</label>
+            <input type="text" v-model="user.other_url" />
 
-      <hr />
+            <hr />
 
-      <label>PS4 Gamertag</label>
-      <input type="text" v-model="user.ps4_gamertag" />
-      <label>XBox Gamertag</label>
-      <input type="text" v-model="user.xbox_gamertag" />
-      <label>Steam Gamertag</label>
-      <input type="text" v-model="user.steam_gamertag" />
+            <label>PS4 Gamertag</label>
+            <input type="text" v-model="user.ps4_gamertag" />
+            <label>XBox Gamertag</label>
+            <input type="text" v-model="user.xbox_gamertag" />
+            <label>Steam Gamertag</label>
+            <input type="text" v-model="user.steam_gamertag" />
 
-      <hr />
+            <hr />
 
-      <input type="submit" value="Save User" />
-    </form>
-  </div>
+            <div class="submit-wrapper">
+                <input type="submit" value="Save User" :disabled="!validForm" />
+                <div class="submit-overlay" @mouseover="showError = true"></div>
+            </div>
+
+            <p class="error text-center" v-if="showError">{{ error }}</p>
+        </form>
+    </div>
 </template>
 
 <script>
@@ -133,220 +156,291 @@ import { states, countries } from "@data/geo";
 
 import { mask } from "vue-the-mask";
 
+import Validator from "@utils/Validator";
+
 export default {
-  props: {
-    edituser: {
-      type: Object,
-      required: false
+    props: {
+        edituser: {
+            type: Object,
+            required: false
+        },
+        roles: {
+            type: Array,
+            required: true
+        }
     },
-    roles: {
-      type: Array,
-      required: true
-    }
-  },
-  data() {
-    return {
-      image_path: "",
-      image_contents: "",
-      states,
-      countries,
-      user: this.edituser
-        ? {
-            ...this.edituser,
-            profile_picture:
-              "/images/users/ViL_" + this.edituser.username + ".jpg"
-          }
-        : {
-            username: "",
-            email: "",
-            password: "",
-            profile_picture: "/images/users/placeholder.jpg",
-            f_name: "",
-            m_name: "",
-            l_name: "",
-            title: "",
-            address: "",
-            city: "",
-            province: "",
-            zip: "",
-            country: "United States",
-            birth_date: "",
-            description: "",
-            role: "",
-            status: 1,
-            facebook_url: "",
-            twitter_url: "",
-            instagram_url: "",
-            twitch_url: "",
-            youtube_url: "",
-            other_url: "",
-            ps4_gamertag: "",
-            xbox_gamertag: "",
-            steam_gamertag: "",
-            created: "",
-            updated: ""
-          }
-    };
-  },
-  computed: {
-    dob() {
-      if (this.user.birth_date) {
-        const date_array = this.user.birth_date.split("/");
-        return date_array[2] + "-" + date_array[0] + "-" + date_array[1];
-      }
-    }
-  },
-  methods: {
-    uploadImage(e) {
-      this.image_contents = this.$refs.profilepicture.files[0];
-      this.user.profile_picture = URL.createObjectURL(e.target.files[0]);
+    data() {
+        return {
+            image_path: "",
+            image_contents: "",
+            states,
+            countries,
+            user: this.edituser
+                ? {
+                      ...this.edituser,
+                      password: "",
+                      profile_picture:
+                          "/images/users/ViL_" + this.edituser.username + ".jpg"
+                  }
+                : {
+                      username: "",
+                      email: "",
+                      password: "",
+                      profile_picture: "/images/users/placeholder.jpg",
+                      f_name: "",
+                      m_name: "",
+                      l_name: "",
+                      title: "",
+                      address: "",
+                      city: "",
+                      province: "",
+                      zip: "",
+                      country: "United States",
+                      birth_date: "",
+                      description: "",
+                      role: 0,
+                      privilege_id: 1,
+                      status: 1,
+                      facebook_url: "",
+                      twitter_url: "",
+                      instagram_url: "",
+                      twitch_url: "",
+                      youtube_url: "",
+                      other_url: "",
+                      ps4_gamertag: "",
+                      xbox_gamertag: "",
+                      steam_gamertag: ""
+                  },
+            passwordMatch: "",
+            // UI control
+            showError: false,
+            error: "Username is missing"
+        };
     },
-    save() {
-      this.user = { ...this.user, birth_date: this.dob };
+    computed: {
+        dob() {
+            console.log("this user", JSON.stringify(this.user));
+            console.log("this user dob", JSON.stringify(this.user.birth_date));
+            if (this.user.birth_date) {
+                const dates = this.user.birth_date.split("/");
+                console.log("Dates", JSON.stringify(dates));
+                return dates[2] + "-" + dates[0] + "-" + dates[1];
+            }
+        },
+        //
+        // Validity checks
+        //
+        // validUsername checks if a username is valid
+        validUsername() {
+            return this.user.username != "";
+        },
+        // validUsername checks if an email is valid
+        validEmail() {
+            return Validator.validEmail(this.user.email);
+        },
+        // validUsername checks if a password is valid
+        validPassword() {
+            return Validator.validPassword(this.user.password, 3);
+        },
+        // validUsername checks if both passwords match
+        validPasswordMatch() {
+            return this.user.password == this.passwordMatch;
+        },
+        // validUsername checks if a role is valid
+        validRole() {
+            return this.user.role != "";
+        },
+        // validUsername checks if a first name is valid
+        validFName() {
+            return this.user.f_name != "";
+        },
+        // validUsername checks if the form is valid
+        validForm() {
+            return (
+                this.validUsername &&
+                this.validEmail &&
+                this.validPassword &&
+                this.validPasswordMatch &&
+                this.validRole &&
+                this.validFName
+            );
+        }
+    },
+    methods: {
+        // Prepares image to be uploaded and displays chosen image
+        uploadImage(e) {
+            this.image_contents = this.$refs.profilepicture.files[0];
+            this.user.profile_picture = URL.createObjectURL(e.target.files[0]);
+        },
+        save() {
+            const user = { ...this.user, birth_date: this.dob };
+            // Prep file
+            let image = new FormData();
+            image.append("image", this.image_contents);
+            image.append("folder", "users");
+            image.append("name", "ViL_" + user.username);
 
-      // Prep file
-      let image = new FormData();
-      image.append("image", this.image_contents);
-      image.append("folder", "users");
-      image.append("name", "ViL_" + this.user.username);
+            this.$emit("save", {
+                user,
+                image,
+                image_path: this.image_path
+            });
+        }
+    },
+    created() {
+        if (this.user.birth_date) {
+            const date_array = this.user.birth_date.split("-");
+            this.user.birth_date =
+                date_array[1] + "/" + date_array[2] + "/" + date_array[0];
+        }
 
-      this.$emit("save", {
-        user: this.user,
-        image,
-        image_path: this.image_path
-      });
-    }
-  },
-  created() {
-    if (this.user.birth_date) {
-      const date_array = this.user.birth_date.split("-");
-      this.user.birth_date =
-        date_array[1] + "/" + date_array[2] + "/" + date_array[0];
-    }
-  },
-  directives: { mask }
+        document.onkeypress = function(e) {
+            e = e || window.event;
+            console.log(
+                "document.activeElement.tagName;",
+                document.activeElement.tagName
+            );
+        };
+    },
+    directives: { mask }
 };
 </script>
 
 <style scoped>
 .flex {
-  display: flex;
+    display: flex;
 }
 .two-column {
-  flex: 50%;
+    flex: 50%;
 }
 
 .ml-10 {
-  margin-left: 10px;
+    margin-left: 10px;
 }
 
 .mr-10 {
-  margin-right: 10px;
+    margin-right: 10px;
 }
 
 hr {
-  margin: 20px 0;
-  border: 1px solid var(--color-grey-light);
+    margin: 20px 0;
+    border: 1px solid var(--color-grey-light);
 }
 
 img {
-  width: 260px;
-  height: 260px;
-  display: block;
-  margin: 0 auto;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  cursor: pointer;
+    width: 260px;
+    height: 260px;
+    display: block;
+    margin: 0 auto;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    cursor: pointer;
 }
 
 label {
-  color: #dedede;
-  display: block;
-  font-size: 18px;
-  margin-bottom: 4px;
-  padding-left: 8px;
+    color: white;
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+    padding-left: 8px;
+    font-family: "Geizer", cursive;
+    letter-spacing: 2px;
 }
 
 input,
 select,
 textarea {
-  display: block;
-  width: 100%;
-  font-size: 24px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 0;
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
-  font-family: Nixie One, cursive;
+    display: block;
+    width: 100%;
+    font-size: 20px;
+    font-family: inherit;
+    padding: 12px 24px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
+    transition: all 0.25s;
 }
 
 textarea {
-  height: 215px;
-  resize: none;
+    height: 215px;
+    resize: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border: 2px solid var(--color-secondary);
+    outline: none;
 }
 
 input[type="submit"] {
-  color: white;
-  margin-top: 20px;
-  background-color: var(--color-secondary);
-  border: 0;
-  height: 60px;
-  cursor: pointer;
-  font-family: "Geizer", cursive;
-  letter-spacing: 2px;
-  border-radius: 8px;
-  transform: translateY(0);
-  transition: all 0.25s;
+    color: white;
+    margin-top: 20px;
+    background-color: var(--color-secondary);
+    border: 0;
+    height: 60px;
+    cursor: pointer;
+    font-family: "Geizer", cursive;
+    letter-spacing: 2px;
+    border-radius: 8px;
+    transform: translateY(0);
+    transition: all 0.25s;
 }
 
 input[type="submit"]:hover {
-  transform: translateY(-2px);
-  background-color: var(--color-secondary-light);
+    transform: translateY(-2px);
+    background-color: var(--color-secondary-light);
+}
+
+input[type="submit"]:disabled {
+    background-color: #bebebe;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .profile-pic {
-  width: 340px;
+    width: 340px;
 }
 
 .img-label {
-  margin-left: 40px;
+    margin-left: 40px;
 }
 
 .main-info {
-  width: calc(100% - 340px);
+    width: calc(100% - 340px);
 }
 
 .file-label {
-  display: block;
-  cursor: pointer;
-  color: white;
-  margin: 0 auto;
-  background-color: var(--color-secondary);
-  border: 0;
-  height: 35px;
-  cursor: pointer;
-  font-family: "Geizer", cursive;
-  letter-spacing: 2px;
-  line-height: 35px;
-  width: 260px;
-  text-align: center;
-  box-sizing: border-box;
-  font-size: 20px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  transition: all 0.25s;
+    display: block;
+    cursor: pointer;
+    color: white;
+    margin: 0 auto;
+    background-color: var(--color-secondary);
+    border: 0;
+    height: 35px;
+    cursor: pointer;
+    font-family: "Geizer", cursive;
+    letter-spacing: 2px;
+    line-height: 35px;
+    width: 260px;
+    text-align: center;
+    box-sizing: border-box;
+    font-size: 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    transition: all 0.25s;
 }
 
 .file-label:hover {
-  background-color: var(--color-secondary-light);
+    background-color: var(--color-secondary-light);
 }
 
 input[type="file"] {
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
 }
 </style>

@@ -20,8 +20,11 @@ func New(router *httprouter.Router) {
 	// Admin pages still serve index
 	router.GET("/login", HandleIndex())
 	router.GET("/admin", HandleIndex())
+	router.GET("/admin/users", HandleIndex())
+	router.GET("/admin/users/new", HandleIndex())
 
 	router.GET("/favicon.ico", HandleFavIcon())
+	router.GET("/admin/favicon.ico", HandleFavIcon())
 
 	// Serve public assets
 	router.ServeFiles("/css/*filepath", http.Dir("./../../public/css"))

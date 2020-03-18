@@ -4,7 +4,7 @@ import "errors"
 
 var (
 	// ErrUnauthorized is returned when there is an error during JWT authorization
-	ErrUnauthorized = errors.New("Count not find JWT or API key in Authorization header")
+	ErrUnauthorized = errors.New("Could not find JWT or API key in Authorization header")
 
 	// ErrJwtUnauthorized is returned when there is an error during JWT authorization
 	ErrJWTUnauthorized = errors.New("Could not validate JWT")

@@ -10,7 +10,7 @@ const mutations = {
   ADD_ROLE(state, role) {
     state.roles.push(role);
   },
-  GET_ROLES(state, roles) {
+  SET_ROLES(state, roles) {
     state.roles = roles;
   },
   UPDATE_ROLE(state, role) {
@@ -29,10 +29,10 @@ const actions = {
   addRole: ({ commit }, name) => {
     axios
       .post("http://teamvillainous.com/api/v1/roles", { name })
-      .then(response => {
-        commit("ADD_ROLE", { name, id: response.data.id });
+      .then(res => {
+        commit("ADD_ROLE", { name, id: res.data.id });
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   },
 
   getRoles: ({ commit, state }) => {
@@ -40,29 +40,30 @@ const actions = {
     if (!state.roles) {
       return axios
         .get("http://teamvillainous.com/api/v1/roles")
-        .then(response => {
-          commit("GET_ROLES", response.data.data);
+        .then(res => {
+          console.log("got roles", res);
+          commit("SET_ROLES", res.data.data);
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
   },
 
   updateRole: ({ commit }, role) => {
     axios
       .put("http://teamvillainous.com/api/v1/roles", role)
-      .then(response => {
+      .then(res => {
         commit("UPDATE_ROLE", role);
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   },
 
   removeRole: ({ commit }, role_id) => {
     axios
       .post("http://teamvillainous.com/api/v1/roles", { id: role_id })
-      .then(response => {
+      .then(res => {
         commit("REMOVE_ROLE", role_id);
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   }
 };
 

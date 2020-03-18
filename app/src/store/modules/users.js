@@ -30,7 +30,7 @@ const mutations = {
   },
   REMOVE_USER(state, userID) {
     state.users = state.users.filter(user => {
-      return user.id !== useID;
+      return user.id !== userID;
     });
   },
   SET_TOKEN(state, token) {
@@ -42,31 +42,48 @@ const mutations = {
 };
 
 const actions = {
-  addUser: ({ commit }, payload) => {
+  addUser: ({ commit, getters }, payload) => {
+    console.log("payload", payload);
     const user = payload.user;
-    axios
-      .post("//teamvillainous.com/api/v1/users", { ...user })
+    console.log("final user", user);
+    return axios
+      .post("//teamvillainous.com/api/v1/users", user, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
       .then(res => {
+        console.log("res", res);
         commit("ADD_USER", { ...user, id: res.data.id });
         // Upload new image if the path was altered
         if (payload.image_path != "") {
           // Save image to server
-          axios
-            .post(
-              "//teamvillainous.com/api/v1/file/upload-image",
-              payload.image,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data"
-                }
+          console.log(
+            "checkpoint: addUser action payload.image",
+            JSON.stringify(payload.image)
+          );
+          return axios
+            .post("//teamvillainous.com/api/v1/upload", payload.image, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${getters.token}`
               }
-            )
-            .then(res => res)
-            .catch(e => e);
+            })
+            .then(res => {
+              console.log("Upload res", res);
+              return res;
+            })
+            .catch(e => {
+              console.log("upload e", e);
+              console.log("Upload e.response", e.response);
+              return e;
+            });
         }
         return res;
       })
-      .catch(e => e);
+      .catch(e => {
+        console.log("e", e);
+        console.log("e.response", e.response);
+        return e;
+      });
   },
   getUsers: ({ commit, getters }) => {
     // Only hit api if users does not exist yet
@@ -74,35 +91,13 @@ const actions = {
       return axios
         .get("//teamvillainous.com/api/v1/users/?status=1")
         .then(res => {
+          console.log("got users", res);
           commit("SET_USERS", res.data.data);
           return res;
         })
         .catch(e => e);
     }
   },
-
-  getUser: ({ commit, getters }, id) => {
-    // Only hit api if user does not exist yet
-    let exists = false;
-    if (getters.users && getters.users.length > 0) {
-      getters.users.forEach(user => {
-        if (user.id == id) {
-          exists = true;
-        }
-      });
-    }
-
-    if (!exists) {
-      return axios
-        .get("//teamvillainous.com/api/v1/users/" + id)
-        .then(res => {
-          commit("SET_USER", res.data.data);
-          return res;
-        })
-        .catch(e => e);
-    }
-  },
-
   getUser: ({ commit, getters }, id) => {
     // Only hit api if user does not exist yet
     let exists = false;
@@ -145,7 +140,7 @@ const actions = {
 
     axios
       .put("//teamvillainous.com/api/v1/users", { ...user })
-      .then(response => {
+      .then(res => {
         commit("UPDATE_USER", user);
         // Upload new image if the path was altered
         if (payload.image_path != "") {
@@ -166,19 +161,23 @@ const actions = {
       })
       .catch(e => e);
   },
-  removeUser: ({ commit }, userID) => {
-    console.log("deleting", userID);
-
+  removeUser: ({ commit, getters }, userID) => {
+    console.log("Token is...", getters.token);
+    // Remove a user
     return axios
-      .delete("//teamvillainous.com/api/v1/users", {
-        data: { id: userID }
+      .delete("//teamvillainous.com/api/v1/users/" + userID, {
+        headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
         console.log("delete user res", res);
         commit("REMOVE_USER", userID);
         return res;
       })
-      .catch(e => e);
+      .catch(e => {
+        console.log("e", e);
+        console.log("eres", e.response);
+        return e;
+      });
   },
   login: ({ commit, dispatch }, login) => {
     return axios
@@ -259,6 +258,7 @@ const getters = {
           }
         }
       });
+      return groups;
     } else {
       // May want to return something more useful here
       return [];

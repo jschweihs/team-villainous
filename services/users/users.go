@@ -55,6 +55,11 @@ func (s *Service) New(params *NewParams) (*User, error) {
 		pes.Add(errors.NewParamError("password", ErrPassword))
 	}
 
+	// Handle birth date
+	if len(params.BirthDate) != 10 {
+		params.BirthDate = "0000-00-00"
+	}
+
 	// Return if there were parameter errors
 	if pes.Length() > 0 {
 		return nil, pes

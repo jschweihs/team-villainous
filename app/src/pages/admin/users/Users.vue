@@ -2,9 +2,9 @@
   <div class="content">
     <h1>Manage Users</h1>
     <router-link to="/admin/users/new" tag="button">Add New User</router-link>
-    <div v-if="user_groups && roles">
+    <div v-if="userGroups && roles">
       <team-section
-        v-for="(group, index) in user_groups"
+        v-for="(group, index) in userGroups"
         :key="index"
         :group="group"
         :roles="roles"
@@ -25,7 +25,7 @@ export default {
     TeamSection
   },
   computed: {
-    ...mapGetters(["current_user", "roles", "user_groups"])
+    ...mapGetters(["current_user", "roles", "userGroups"])
   },
   methods: {
     removeUser(user_id) {
