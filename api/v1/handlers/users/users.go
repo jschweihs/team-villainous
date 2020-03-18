@@ -2,7 +2,6 @@ package users
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -107,14 +106,12 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servusers.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Println("Here1")
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
 
 		_, err := auth.GetUserFromRequest(r)
 		if err != nil {
-			fmt.Println("Here2")
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -122,12 +119,9 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Try to create a new user
 		user, err := ac.Services.Users.New(&params)
 		if pes, ok := err.(*serverrors.ParamErrors); ok && err != nil {
-			fmt.Printf("%v\n", pes)
 			errors.Params(ac.Logger, w, http.StatusBadRequest, pes)
 			return
 		} else if err != nil {
-			fmt.Println("Here4")
-			fmt.Printf("%v\n", err)
 			ac.Logger.Printf("users.New() service error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
@@ -169,7 +163,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
-			fmt.Println("Here5")
 			ac.Logger.Printf("render.JSON() error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
@@ -565,8 +558,6 @@ func HandleDelete(ac *apictx.Context) http.HandlerFunc {
 			return
 		}
 		id = int(id64)
-
-		fmt.Printf("%v\n", id)
 
 		// Get this user from the request context
 		_, err = auth.GetUserFromRequest(r)
