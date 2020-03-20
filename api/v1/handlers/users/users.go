@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,7 +14,7 @@ import (
 	serverrors "vil/services/errors"
 	servusers "vil/services/users"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // User defines a user
@@ -196,16 +197,15 @@ func HandleGet(ac *apictx.Context) http.HandlerFunc {
 			}
 		}
 
-		// Handle created
+		// Handle status
 		if statusqs, ok := r.URL.Query()["status"]; ok && len(statusqs) == 1 {
 			status, err := strconv.ParseInt(statusqs[0], 10, 32)
 			if err != nil {
 				errs.Add(errors.New(http.StatusBadRequest, "status", ErrLimitInvalid.Error()))
 			} else {
-				params.Status = int(status)
+				i := int(status)
+				params.Status = &i
 			}
-		} else {
-			params.Status = 0
 		}
 
 		// Handle offset
@@ -468,6 +468,7 @@ func HandleUpdate(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servusers.UpdateParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+			fmt.Printf("%v\n", err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}

@@ -12,8 +12,8 @@ import (
 	"vil/fileserver"
 
 	"github.com/beeker1121/creek"
-	"github.com/beeker1121/httprouter"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jschweihs/httprouter"
 )
 
 func main() {

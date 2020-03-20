@@ -3,13 +3,14 @@ package fileserver
 import (
 	"net/http"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // New creates a new fileserver application. The fileserver is
 // responsible for serving the index.html file as well as
 // public assets such as css, js, etc
 func New(router *httprouter.Router) {
+
 	// Serve index for existing pages
 	router.GET("/", HandleIndex())
 	router.GET("/team", HandleIndex())
@@ -21,7 +22,7 @@ func New(router *httprouter.Router) {
 	router.GET("/login", HandleIndex())
 	router.GET("/admin", HandleIndex())
 	router.GET("/admin/users", HandleIndex())
-	router.GET("/admin/users/new", HandleIndex())
+	router.GET("/admin/users/:id", HandleIndex())
 
 	router.GET("/favicon.ico", HandleFavIcon())
 	router.GET("/admin/favicon.ico", HandleFavIcon())

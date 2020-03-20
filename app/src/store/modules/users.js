@@ -62,33 +62,28 @@ const actions = {
           throw res.data.errors[0].detail;
         } else if (res.data.data.username != "") {
           // Add new user to state
-          commit("ADD_USER", { ...user, id: res.data.id });
+          commit("ADD_USER", { ...user, id: res.data.data.id });
         }
 
-        // Check if image was provided
-        if (payload.image_path != "") {
-          // Save profile image
-          return axios
-            .post("//teamvillainous.com/api/v1/upload", payload.image, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${getters.token}`
-              }
-            })
-            .then(res => res)
-            .catch(e => e);
-        }
+        // Save profile image
+        axios
+          .post("//teamvillainous.com/api/v1/upload", payload.image, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${getters.token}`
+            }
+          })
+          .then(res => res)
+          .catch(e => e);
         return res;
       })
       .catch(e => e);
   },
   getUsers: ({ commit, getters }) => {
-    // Only hit api if users does not exist yet
     if (!getters.users) {
       return axios
         .get("//teamvillainous.com/api/v1/users/?status=1")
         .then(res => {
-          console.log("got users", res);
           commit("SET_USERS", res.data.data);
           return res;
         })
@@ -96,7 +91,6 @@ const actions = {
     }
   },
   getUser: ({ commit, getters }, id) => {
-    // Only hit api if user does not exist yet
     let exists = false;
     if (getters.users && getters.users.length > 0) {
       getters.users.forEach(user => {
@@ -117,13 +111,11 @@ const actions = {
     }
   },
   getCurrentUser: ({ commit, getters }) => {
-    console.log("Getting current user");
     return axios
       .get("//teamvillainous.com/api/v1/me", {
         headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
-        console.log("res from users/me", res);
         if (res.data.data.username != "") {
           commit("SET_CURRENT_USER", res.data.data);
         }
@@ -132,55 +124,56 @@ const actions = {
       .catch(e => e);
   },
 
-  updateUser: ({ commit }, payload) => {
+  updateUser: ({ commit, getters }, payload) => {
     const user = payload.user;
-
-    axios
-      .put("//teamvillainous.com/api/v1/users", { ...user })
+    return axios
+      .put("//teamvillainous.com/api/v1/users/" + user.id, user, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
       .then(res => {
-        commit("UPDATE_USER", user);
-        // Upload new image if the path was altered
-        if (payload.image_path != "") {
-          axios
-            .post(
-              "//teamvillainous.com/api/v1/file/upload-image",
-              payload.image,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data"
-                }
-              }
-            )
-            .then(res => res)
-            .catch(e => e);
-          return res;
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else if (res.data.data && res.data.data.username != "") {
+          commit("UPDATE_USER", user);
         }
+
+        // TODO: Only uplaod image if a new image was provided
+        // axios
+        //   .post(
+        //     "//teamvillainous.com/api/v1/file/upload-image",
+        //     payload.image,
+        //     {
+        //       headers: {
+        //         "Content-Type": "multipart/form-data"
+        //       }
+        //     }
+        //   )
+        //   .then(res => res)
+        //   .catch(e => e);
+        return res;
       })
       .catch(e => e);
   },
   removeUser: ({ commit, getters }, userID) => {
-    console.log("Token is...", getters.token);
     // Remove a user
     return axios
       .delete("//teamvillainous.com/api/v1/users/" + userID, {
         headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
-        console.log("delete user res", res);
         commit("REMOVE_USER", userID);
         return res;
       })
-      .catch(e => {
-        console.log("e", e);
-        console.log("eres", e.response);
-        return e;
-      });
+      .catch(e => e);
   },
   login: ({ commit, dispatch }, login) => {
     return axios
       .post("//teamvillainous.com/api/v1/login", login)
       .then(res => {
-        console.log("res", res);
         if (res.data.data) {
           Cookie.setCookie("token", res.data.data);
           commit("SET_TOKEN", res.data.data);
@@ -188,19 +181,11 @@ const actions = {
             .then(res => {
               return res;
             })
-            .catch(e => {
-              console.log("e", e);
-              console.log(e.response);
-              return e;
-            });
+            .catch(e => e);
         }
         return res;
       })
-      .catch(e => {
-        console.log("e", e);
-        console.log(e.response);
-        return e;
-      });
+      .catch(e => e);
   },
   logout: ({ commit }) => {
     commit("SET_TOKEN", null);

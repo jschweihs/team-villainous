@@ -41,7 +41,6 @@ const actions = {
       return axios
         .get("http://teamvillainous.com/api/v1/roles")
         .then(res => {
-          console.log("got roles", res);
           commit("SET_ROLES", res.data.data);
         })
         .catch(e => e);

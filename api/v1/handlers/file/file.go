@@ -5,7 +5,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 	"vil/api/middleware/auth"
 	"vil/api/render"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // Note: Right now this package is only designed for handling images
@@ -38,6 +37,8 @@ func New(ac *apictx.Context, router *httprouter.Router) {
 }
 
 // HandlePost handles the /api/v1/upload POST route of the API
+// If no file is provided, this will attempt to use the placeholder
+// file in the given folder instead
 func HandlePost(ac *apictx.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Get this user from the request context
@@ -58,32 +59,48 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		}
 
 		// Get new image name
-		name := strings.Replace(url.QueryEscape(r.FormValue("name")), "+", "%20", -1)
+		name := strings.ReplaceAll(r.FormValue("name"), " ", "")
 		if name == "" {
 			errs.Add(errors.New(http.StatusBadRequest, "name", ErrNameInvalid.Error()))
 		}
 
+		fmt.Printf("%v\n", name)
 		// Get folder name
 		folder := r.FormValue("folder")
 		if folder == "" {
 			errs.Add(errors.New(http.StatusBadRequest, "folder", ErrFolderInvalid.Error()))
 		}
 
-		// Get the file
+		// Return if there were errors
+		if errs.Length() > 0 {
+			errors.Multiple(ac.Logger, w, http.StatusBadRequest, errs)
+			return
+		}
+
+		// Get the file if provided
 		file, handler, err := r.FormFile("image")
-		if err != nil {
+
+		// Create new variable for file extension
+		var ext string
+
+		// No file was provided, use placeholders
+		if file == nil || handler == nil {
+			file, err = os.Open("./../../app/public/images/" + folder + "/placeholder.jpg")
+			if err != nil {
+				errors.Default(ac.Logger, w, errors.ErrInternalServerError)
+			}
+			ext = ".jpg"
+		} else if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
+		} else {
+			ext = "." + strings.Split(handler.Filename, ".")[1]
 		}
 		defer file.Close()
 
-		// Get file extension
-		ext := "." + strings.Split(handler.Filename, ".")[1]
-
 		// Create file at source location
-		// os.Create takes a string and returns *File, error
-		// The File type DOES implement the Read/Write interface
 		appPath := "./../../app/public/images/" + folder + "/" + name + ext
+		fmt.Printf("%v\n", appPath)
 		appFile, err := os.Create(appPath)
 		if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
@@ -92,12 +109,8 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		defer appFile.Close()
 
 		// Move uploaded file to appFile
-		// io.Copy takes a Writer and Reader and returns int64, error
 		size, err := io.Copy(appFile, file)
-		if size == 0 {
-			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
-			return
-		} else if err != nil {
+		if size == 0 || err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -105,12 +118,14 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Open file placed in app
 		in, err := os.Open(appPath)
 		if err != nil {
+			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
 		defer in.Close()
 
 		// Create file at public location
 		publicPath := "./../../public/images/" + folder + "/" + name + ext
+		fmt.Printf("%v\n", publicPath)
 		publicFile, err := os.Create(publicPath)
 		if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
@@ -120,10 +135,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Move uploaded file to publicFile
 		size, err = io.Copy(publicFile, in)
-		if err != nil {
-			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
-			return
-		} else if size == 0 {
+		if size == 0 || err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -135,7 +147,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
-			fmt.Println(err)
 			ac.Logger.Printf("render.JSON() error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return

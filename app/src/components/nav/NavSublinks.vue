@@ -10,7 +10,7 @@
           target="_blank"
         >
           <i class="fab fa-twitch"></i>
-          <span class="sublink-text">Twitch.tv</span>
+          <span class="sublink-text"> Twitch.tv</span>
         </a>
       </li>
 
@@ -21,7 +21,7 @@
           target="_blank"
         >
           <i class="fab fa-youtube-square"></i>
-          <span class="sublink-text">Youtube</span>
+          <span class="sublink-text"> Youtube</span>
         </a>
       </li>
 
@@ -32,7 +32,7 @@
           target="_blank"
         >
           <i class="fab fa-facebook-square"></i>
-          <span class="sublink-text">Facebook</span>
+          <span class="sublink-text"> Facebook</span>
         </a>
       </li>
 
@@ -43,7 +43,7 @@
           target="_blank"
         >
           <i class="fab fa-twitter-square"></i>
-          <span class="sublink-text">Twitter</span>
+          <span class="sublink-text"> Twitter</span>
         </a>
       </li
       >

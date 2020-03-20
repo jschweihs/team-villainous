@@ -14,7 +14,7 @@ import (
 	servblog "vil/services/blog"
 	serverrors "vil/services/errors"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // BlogEntry defines a blog entry

@@ -1,6 +1,7 @@
 package users
 
 import (
+	"strings"
 	"vil/database"
 	dbusers "vil/database/users"
 	"vil/services/errors"
@@ -265,6 +266,13 @@ func (s *Service) GetByID(id int) (*User, error) {
 		UpdatedAt:     u.UpdatedAt,
 	}
 
+	// Handle birth_date
+	if user.BirthDate == "0000-01-01T00:00:00Z" {
+		user.BirthDate = ""
+	} else {
+		user.BirthDate = strings.Split(user.BirthDate, "T")[0]
+	}
+
 	return user, nil
 }
 
@@ -307,7 +315,6 @@ func (s *Service) UpdateByID(id int, params *UpdateParams) (*User, error) {
 		PS4Gamertag:   params.PS4Gamertag,
 		XBoxGamertag:  params.XBoxGamertag,
 		SteamGamertag: params.SteamGamertag,
-		UpdatedAt:     params.UpdatedAt,
 	})
 	if err != nil {
 		return nil, err

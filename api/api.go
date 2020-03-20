@@ -9,7 +9,7 @@ import (
 	"vil/database"
 	"vil/services"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // New creates a new API application. All of the necessary routes for the

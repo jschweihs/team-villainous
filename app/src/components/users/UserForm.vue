@@ -28,12 +28,16 @@
                         type="text"
                         v-model="user.username"
                         :class="{'form-error': !validUsername && showError}"
+                        @keyup="checkForErrors"
+                        placeholder="Vegeta"
                     />
                     <label>Email*</label>
                     <input
                         type="text"
                         v-model="user.email"
                         :class="{'form-error': !validEmail && showError}"
+                        @keyup="checkForErrors"
+                        placeholder="vegeta@planetvegeta.com"
                     />
                     <div v-if="!edituser">
                         <label>Password*</label>
@@ -41,16 +45,23 @@
                             type="password"
                             v-model="user.password"
                             :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                            @keyup="checkForErrors"
                         />
                         <label>Password Confirm*</label>
                         <input
                             type="password"
                             v-model="passwordMatch"
                             :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                            @keyup="checkForErrors"
                         />
                     </div>
                     <label>Role*</label>
-                    <select v-model="user.role" :class="{'form-error': !validRole && showError}">
+                    <select
+                        v-model="user.role"
+                        :class="{'form-error': !validRole && showError}"
+                        @keyup="checkForErrors"
+                    >
+                        <option value="0" disabled>Select role...</option>
                         <option
                             v-for="role in roles"
                             :key="role.id"
@@ -58,7 +69,7 @@
                         >{{ role.name }}</option>
                     </select>
                     <label>Title</label>
-                    <input type="text" v-model="user.title" />
+                    <input type="text" v-model="user.title" placeholder="Price of All Saiyans" />
                 </div>
             </div>
 
@@ -71,6 +82,8 @@
                         type="text"
                         v-model="user.f_name"
                         :class="{'form-error': !validFName && showError}"
+                        @keyup="checkForErrors"
+                        placeholder="Vegeta"
                     />
                     <label>Middle Name</label>
                     <input type="text" v-model="user.m_name" />
@@ -83,9 +96,11 @@
                     <label>Date of Birth</label>
                     <input
                         type="text"
+                        :class="{'form-error': !validDOB && showError}"
                         placeholder="mm/dd/yyyy"
                         v-model="user.birth_date"
                         v-mask="'##/##/####'"
+                        @keyup="checkForErrors"
                     />
                     <label>Address</label>
                     <input type="text" v-model="user.address" />
@@ -94,6 +109,7 @@
                     <div v-if="user.country == 'United States'">
                         <label>State</label>
                         <select v-model="user.province">
+                            <option value disabled>Select state/province...</option>
                             <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
                         </select>
                     </div>
@@ -106,6 +122,7 @@
                     <input type="text" v-model="user.zip" />
                     <label>Country</label>
                     <select v-model="user.country" @change="user.province = ''">
+                        <option value disabled>Select country...</option>
                         <option
                             v-for="country in countries"
                             :key="country"
@@ -118,17 +135,21 @@
             <hr />
 
             <label>Facebook</label>
-            <input type="text" v-model="user.facebook_url" />
+            <input type="text" v-model="user.facebook_url" placeholder="Facebook handle" />
             <label>Twitter</label>
-            <input type="text" v-model="user.twitter_url" />
+            <input type="text" v-model="user.twitter_url" placeholder="Twitter handle" />
             <label>Instagram</label>
-            <input type="text" v-model="user.instagram_url" />
+            <input type="text" v-model="user.instagram_url" placeholder="Instagram handle" />
             <label>Twitch</label>
-            <input type="text" v-model="user.twitch_url" />
+            <input type="text" v-model="user.twitch_url" placeholder="Twitch handle" />
             <label>Youtube</label>
-            <input type="text" v-model="user.youtube_url" />
+            <input
+                type="text"
+                v-model="user.youtube_url"
+                placeholder="http://youtube.com/myChannel"
+            />
             <label>Other</label>
-            <input type="text" v-model="user.other_url" />
+            <input type="text" v-model="user.other_url" placeholder="http://my-website.com" />
 
             <hr />
 
@@ -181,7 +202,7 @@ export default {
                       password: "",
                       profile_picture:
                           "/images/users/ViL_" +
-                          encodeURIComponent(this.edituser.username) +
+                          this.edituser.username.split(" ").join("") +
                           ".jpg"
                   }
                 : {
@@ -239,19 +260,31 @@ export default {
         },
         // validUsername checks if a password is valid
         validPassword() {
-            return Validator.validPassword(this.user.password, 3);
+            if (!this.edituser) {
+                return Validator.validPassword(this.user.password, 3);
+            }
+            return true;
         },
         // validUsername checks if both passwords match
         validPasswordMatch() {
-            return this.user.password == this.passwordMatch;
+            if (!this.edituser) {
+                return this.user.password == this.passwordMatch;
+            }
+            return true;
         },
         // validUsername checks if a role is valid
         validRole() {
-            return this.user.role != "";
+            return this.user.role > 0;
         },
         // validUsername checks if a first name is valid
         validFName() {
             return this.user.f_name != "";
+        },
+        validDOB() {
+            if (this.user.birth_date != "") {
+                return Validator.validDate(this.user.birth_date);
+            }
+            return true;
         },
         // validUsername checks if the form is valid
         validForm() {
@@ -261,32 +294,67 @@ export default {
                 this.validPassword &&
                 this.validPasswordMatch &&
                 this.validRole &&
-                this.validFName
+                this.validFName &&
+                this.validDOB
             );
         }
     },
     methods: {
+        // Checks keystokes and updates form status
+        checkForErrors() {
+            if (!this.validUsername) {
+                this.error = "Username cannot be empty";
+            } else if (!this.validEmail) {
+                this.error = "Email must be valid email address";
+            } else if (!this.validPassword) {
+                this.error =
+                    "Password must be characters long and contain 1 lowercase letter, 1 uppercase letter, 1 number, and 1 special character";
+            } else if (!this.validPasswordMatch) {
+                this.error = "Passwords do not match";
+            } else if (!this.validRole) {
+                this.error = "Role cannot be empty";
+            } else if (!this.validFName) {
+                this.error = "First name cannot be empty";
+            } else if (!this.validDOB) {
+                this.error = "Date of birth is not formatted correctly";
+            } else {
+                this.error = "";
+            }
+        },
         // Prepares image to be uploaded and displays chosen image
         uploadImage(e) {
+            // Get image
             this.image_contents = this.$refs.profilepicture.files[0];
+
+            // Set image source url to new image for preview
             this.user.profile_picture = URL.createObjectURL(e.target.files[0]);
         },
         save() {
+            // Create a new user with proper date format for dob
             const user = { ...this.user, birth_date: this.dob };
-            // Prep file
+
+            // Create payload
+            let payload = {
+                user
+            };
+
+            // Handle image
+            // Create new form data with image information
             let image = new FormData();
             image.append("image", this.image_contents);
             image.append("folder", "users");
             image.append("name", "ViL_" + user.username);
 
-            this.$emit("save", {
-                user,
-                image,
-                image_path: this.image_path
-            });
+            // Append image to payload
+            payload.image = image;
+            payload.image_path = this.image_path;
+
+            // Save user
+            this.$emit("save", payload);
         }
     },
     created() {
+        // Format date for input field
         if (this.user.birth_date) {
             const date_array = this.user.birth_date.split("-");
             this.user.birth_date =

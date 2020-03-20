@@ -13,7 +13,7 @@ import (
 	serverrors "vil/services/errors"
 	servroles "vil/services/roles"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // Role defines a role

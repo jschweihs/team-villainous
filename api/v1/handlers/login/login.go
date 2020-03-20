@@ -11,7 +11,7 @@ import (
 	serverrors "vil/services/errors"
 	"vil/services/users"
 
-	"github.com/beeker1121/httprouter"
+	"github.com/jschweihs/httprouter"
 )
 
 // ResultPost defines the response data for the HandlePost handler
