@@ -2,7 +2,6 @@ package roles
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -78,7 +77,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servroles.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Printf("Could not decode json")
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
@@ -382,7 +380,7 @@ func HandleDelete(ac *apictx.Context) http.HandlerFunc {
 				ID: id,
 			},
 		}
-		fmt.Printf("%v", result)
+
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
 			ac.Logger.Printf("render.JSON() error: %s\n", err)

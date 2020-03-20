@@ -73,7 +73,6 @@ func main() {
 
 	// Start the HTTP server
 	if err := server.ListenAndServe(); err != nil {
-		fmt.Printf("%v\n", err)
 		logger.Fatal(err)
 	}
 

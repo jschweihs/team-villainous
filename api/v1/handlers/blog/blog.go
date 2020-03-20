@@ -2,7 +2,6 @@ package blog
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -84,7 +83,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servblog.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Printf("Could not decode json")
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
@@ -100,7 +98,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Try to create a new blog
 		blogEntry, err := ac.Services.Blog.New(&params)
 		if pes, ok := err.(*serverrors.ParamErrors); ok && err != nil {
-			fmt.Println("Here")
 			errors.Params(ac.Logger, w, http.StatusBadRequest, pes)
 			return
 		} else if err != nil {
@@ -417,7 +414,7 @@ func HandleDelete(ac *apictx.Context) http.HandlerFunc {
 				ID: id,
 			},
 		}
-		fmt.Printf("%v", result)
+
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
 			ac.Logger.Printf("render.JSON() error: %s\n", err)

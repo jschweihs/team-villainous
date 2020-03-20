@@ -1,7 +1,6 @@
 package file
 
 import (
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -64,7 +63,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 			errs.Add(errors.New(http.StatusBadRequest, "name", ErrNameInvalid.Error()))
 		}
 
-		fmt.Printf("%v\n", name)
 		// Get folder name
 		folder := r.FormValue("folder")
 		if folder == "" {
@@ -100,7 +98,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Create file at source location
 		appPath := "./../../app/public/images/" + folder + "/" + name + ext
-		fmt.Printf("%v\n", appPath)
 		appFile, err := os.Create(appPath)
 		if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
@@ -125,7 +122,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Create file at public location
 		publicPath := "./../../public/images/" + folder + "/" + name + ext
-		fmt.Printf("%v\n", publicPath)
 		publicFile, err := os.Create(publicPath)
 		if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)

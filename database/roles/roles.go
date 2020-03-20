@@ -296,7 +296,6 @@ func (db *Database) Update(id int, params *UpdateParams) (*Role, error) {
 	// Execute the query
 	_, err := db.db.Exec(query, queryValues...)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -312,7 +311,6 @@ func (db *Database) Delete(id int) error {
 	// Execute the query
 	_, err := db.db.Exec(stmtDelete, id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	} else {
 		return nil

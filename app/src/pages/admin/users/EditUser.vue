@@ -29,12 +29,23 @@ export default {
         }
     },
     methods: {
+        // Update a user
         updateUser(user) {
             this.$store
                 .dispatch("updateUser", user)
                 .then(res => {
-                    if (res.data.data && res.data.data.username != "") {
+                    if (
+                        res.data &&
+                        res.data.data &&
+                        res.data.data.username != ""
+                    ) {
+                        // Updating user was successful so take them back to
+                        // the users page
                         this.$router.push("/admin/users");
+                    } else {
+                        // There was an unknown problem with updating
+                        // the user
+                        alert("There was a problem saving this user");
                     }
                 })
                 .catch(e => console.log(e));

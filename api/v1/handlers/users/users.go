@@ -2,7 +2,6 @@ package users
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -468,7 +467,6 @@ func HandleUpdate(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servusers.UpdateParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Printf("%v\n", err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}

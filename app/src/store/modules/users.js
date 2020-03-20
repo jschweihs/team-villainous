@@ -141,19 +141,17 @@ const actions = {
           commit("UPDATE_USER", user);
         }
 
-        // TODO: Only uplaod image if a new image was provided
-        // axios
-        //   .post(
-        //     "//teamvillainous.com/api/v1/file/upload-image",
-        //     payload.image,
-        //     {
-        //       headers: {
-        //         "Content-Type": "multipart/form-data"
-        //       }
-        //     }
-        //   )
-        //   .then(res => res)
-        //   .catch(e => e);
+        if (payload.image_path != "") {
+          axios
+            .post("//teamvillainous.com/api/v1/upload", payload.image, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${getters.token}`
+              }
+            })
+            .then(res => res)
+            .catch(e => e);
+        }
         return res;
       })
       .catch(e => e);

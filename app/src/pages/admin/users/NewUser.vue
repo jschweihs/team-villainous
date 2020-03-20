@@ -28,7 +28,6 @@ export default {
                     if (
                         res.data &&
                         res.data.data &&
-                        res.data.data.username &&
                         res.data.data.username != ""
                     ) {
                         // Adding user was successful so take them back to

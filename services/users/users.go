@@ -219,6 +219,13 @@ func (s *Service) Get(params *GetParams) (*Users, error) {
 			UpdatedAt:     dbu.UpdatedAt,
 		}
 
+		// Handle birth_date
+		if user.BirthDate == "0000-01-01T00:00:00Z" || user.BirthDate == "0001-01-01T00:00:00Z" {
+			user.BirthDate = ""
+		} else {
+			user.BirthDate = strings.Split(user.BirthDate, "T")[0]
+		}
+
 		users.Users = append(users.Users, user)
 
 	}

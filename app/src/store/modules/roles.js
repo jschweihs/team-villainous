@@ -26,11 +26,26 @@ const mutations = {
 };
 
 const actions = {
-  addRole: ({ commit }, name) => {
+  addRole: ({ commit, getters }, name) => {
     axios
-      .post("http://teamvillainous.com/api/v1/roles", { name })
+      .post(
+        "http://teamvillainous.com/api/v1/roles",
+        { name },
+        {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        }
+      )
       .then(res => {
-        commit("ADD_ROLE", { name, id: res.data.id });
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else {
+          commit("ADD_ROLE", { name, id: res.data.data.id });
+        }
+        return res;
       })
       .catch(e => e);
   },
@@ -41,26 +56,63 @@ const actions = {
       return axios
         .get("http://teamvillainous.com/api/v1/roles")
         .then(res => {
-          commit("SET_ROLES", res.data.data);
+          if (
+            res.data.errors &&
+            res.data.errors[0] &&
+            res.data.errors[0].detail != ""
+          ) {
+            throw res.data.errors[0].detail;
+          } else {
+            commit("SET_ROLES", res.data.data);
+          }
+          return res;
         })
         .catch(e => e);
     }
   },
 
-  updateRole: ({ commit }, role) => {
+  updateRole: ({ commit, getters }, role) => {
     axios
-      .put("http://teamvillainous.com/api/v1/roles", role)
+      .put(
+        "http://teamvillainous.com/api/v1/roles/" + role.id,
+        {
+          name: role.name
+        },
+        {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        }
+      )
       .then(res => {
-        commit("UPDATE_ROLE", role);
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else {
+          commit("UPDATE_ROLE", role);
+        }
+        return res;
       })
       .catch(e => e);
   },
 
-  removeRole: ({ commit }, role_id) => {
+  removeRole: ({ commit, getters }, role_id) => {
     axios
-      .post("http://teamvillainous.com/api/v1/roles", { id: role_id })
+      .delete("http://teamvillainous.com/api/v1/roles/" + role_id, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
       .then(res => {
-        commit("REMOVE_ROLE", role_id);
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else {
+          commit("REMOVE_ROLE", role_id);
+        }
+        return res;
       })
       .catch(e => e);
   }
