@@ -1,28 +1,30 @@
 import axios from "axios";
+import Vue from "vue";
 
 const state = {
   blog: null
 };
 
 const mutations = {
+  // Add new blog entry
   ADD_ENTRY(state, entry) {
+    if (!state.blog) {
+      state.blog = [];
+    }
     state.blog.unshift(entry);
   },
+  // Set blog to a given blog
   SET_BLOG(state, blog) {
     state.blog = blog;
   },
-  SET_ENTRY(state, entry) {
-    if (!state.blog || state.blog.length == 0) {
-      state.blog = [];
-    }
-    state.blog.push(entry);
-  },
+  // Update an entry in the blog
   UPDATE_ENTRY(state, entry) {
     if (state.blog) {
       const entry_index = state.blog.findIndex(e => entry.id == e.id);
-      state.blog[entry_index] = entry;
+      Vue.set(state.blog, entry_index, entry);
     }
   },
+  // Remove an entry in the blog
   REMOVE_ENTRY(state, entry_id) {
     state.blog = state.blog.filter(e => {
       return entry_id !== e.id;
@@ -31,37 +33,54 @@ const mutations = {
 };
 
 const actions = {
-  addEntry: ({ commit }, payload) => {
+  // Add a new entry to the blog
+  addEntry: ({ commit, getters }, payload) => {
     const entry = payload.entry;
-    axios
-      .post("//teamvillainous.com/api/v1/blog", entry)
-      .then(res => {
-        commit("ADD_ENTRY", {
-          ...entry,
-          created: new Date().toISOString(),
-          id: res.data.id
-        });
-        // Upload new image if the path was altered
-        if (payload.image_path != "") {
-          // Need to append the id because it hasn't existed till right now
-          payload.image.append("name", res.data.id);
-          // Save image to server
-          axios
-            .post(
-              "//teamvillainous.com/api/v1/file/upload-image",
-              payload.image,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data"
-                }
-              }
-            )
-            .then(res => {})
-            .catch(e => console.log(e));
-        }
+    console.log("entry", entry);
+    return axios
+      .post("//teamvillainous.com/api/v1/blog", entry, {
+        headers: { Authorization: `Bearer ${getters.token}` }
       })
-      .catch(e => console.log(e));
+      .then(res => {
+        console.log("res", res);
+
+        // Check for errors
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else if (res.data.data.title != "") {
+          // Save new entry
+          commit("ADD_ENTRY", res.data.data);
+
+          // We probably need to update the image name here
+          payload.image.delete("name");
+          payload.image.append("name", res.data.data.id);
+
+          // Display the key/value pairs
+          for (var pair of payload.image.entries()) {
+            console.log(pair[0] + ", " + pair[1]);
+          }
+
+          // Save blog entry image
+          axios
+            .post("//teamvillainous.com/api/v1/upload", payload.image, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${getters.token}`
+              }
+            })
+            .then(res => res)
+            .catch(e => e);
+        }
+
+        return res;
+      })
+      .catch(e => e);
   },
+  // Get a set of blog entries
   getBlog: ({ commit, getters }) => {
     // Only hit api if blog does not exist yet
     if (!getters.blog) {
@@ -71,63 +90,69 @@ const actions = {
           console.log("get blog res", res);
           commit("SET_BLOG", res.data.data);
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
   },
+  // Get a blog entry
   getEntry: ({ commit, getters }, id) => {
-    let exists = false;
-    if (getters.blog && getters.blog.length > 0) {
-      getters.blog.forEach(entry => {
-        if (entry.id == id) {
-          exists = true;
-        }
-      });
-    }
-
-    if (!exists) {
+    if (!getters.entry(id)) {
       return axios
         .get("//teamvillainous.com/api/v1/blog/" + id)
         .then(res => {
-          console.log("get blog res", res);
-          commit("SET_ENTRY", res.data.data);
+          if (res.data.data.title != "") {
+            commit("ADD_ENTRY", res.data.data);
+          }
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
   },
-  updateEntry: ({ commit }, payload) => {
+  // Update a blog entry
+  updateEntry: ({ commit, getters }, payload) => {
     const entry = payload.entry;
-    axios
-      .put("//teamvillainous.com/api/v1/blog", entry)
+    return axios
+      .put("//teamvillainous.com/api/v1/blog/" + entry.id, entry, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
       .then(res => {
-        commit("UPDATE_ENTRY", entry);
+        console.log("Update blog res", res);
+        // Check for errors
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else if (res.data.data && res.data.data.title != "") {
+          commit("UPDATE_ENTRY", entry);
+        }
 
-        // Upload new image if the path was altered
+        // Upload new image if available
         if (payload.image_path != "") {
           axios
-            .post(
-              "//teamvillainous.com/api/v1/file/upload-image",
-              payload.image,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data"
-                }
+            .post("//teamvillainous.com/api/v1/upload", payload.image, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${getters.token}`
               }
-            )
-            .then(res => {})
-            .catch(e => console.log(e));
+            })
+            .then(res => res)
+            .catch(e => e);
         }
+        return res;
       })
-      .catch(e => console.log(e));
+      .catch(e => e);
   },
-  removeEntry: ({ commit }, entry_id) => {
-    axios
-      .delete("//teamvillainous.com/api/v1/blog", { id: entry_id })
-      .then(res => {
-        commit("REMOVE_ENTRY", entry_id);
+  // Remove a blog entry
+  removeEntry: ({ commit, getters }, entryID) => {
+    return axios
+      .delete("//teamvillainous.com/api/v1/blog/" + entryID, {
+        headers: { Authorization: `Bearer ${getters.token}` }
       })
-      .catch(e => {
-        console.log(e);
-      });
+      .then(res => {
+        commit("REMOVE_ENTRY", entryID);
+        return res;
+      })
+      .catch(e => e);
   }
 };
 

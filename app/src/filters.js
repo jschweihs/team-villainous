@@ -3,6 +3,10 @@ import Vue from "vue";
 // Dates an ISO date string and
 // returns a beautified version of a date
 Vue.filter("date", function(value) {
+  console.log("filter date value", value);
+  if (!value) {
+    return;
+  }
   const date = value.includes(" ") ? value.split(" ")[0] : value.split("T")[0];
   const dates = date.split("-");
   const year = dates[0];
@@ -20,8 +24,8 @@ Vue.filter("date", function(value) {
     "November",
     "December"
   ];
-  const month = months[date_array[1] - 1];
-  const day = parseInt(date_array[2]);
+  const month = months[dates[1] - 1];
+  const day = parseInt(dates[2]);
   let suffix = "th";
   if (day == 1 || day == 21) {
     suffix = "st";

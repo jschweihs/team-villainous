@@ -42,7 +42,7 @@
                     <i class="fas fa-home"></i>
                 </a>
             </div>
-            <div class="admin-links" v-if="admin">
+            <div class="admin-links" v-if="isAdmin">
                 <router-link tag="a" :to="'/admin/users/' + user.id">
                     <i class="far fa-edit"></i>
                 </router-link>
@@ -61,7 +61,7 @@ export default {
             type: Object,
             required: true
         },
-        admin: {
+        isAdmin: {
             type: Boolean,
             required: false
         }

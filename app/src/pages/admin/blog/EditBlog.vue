@@ -2,7 +2,7 @@
     <div class="content">
         <h1>Update Blog Entry</h1>
         <div class="blog-form">
-            <blog-form v-if="entry" :editentry="entry" @save="updateEntry" />
+            <blog-form v-if="entry" :editEntry="entry" @save="updateEntry" />
         </div>
     </div>
 </template>
@@ -26,18 +26,33 @@ export default {
     },
     methods: {
         updateEntry(entry) {
-            return this.$store
+            console.log("Component entry", entry);
+            this.$store
                 .dispatch("updateEntry", entry)
-                .then(() => {
-                    this.$router.push("/admin/blog");
+                .then(res => {
+                    if (
+                        res.data &&
+                        res.data.data &&
+                        res.data.data.title != ""
+                    ) {
+                        // Updating blog entry was successful so take them back to
+                        // the blog page
+                        this.$router.push("/admin/blog");
+                    } else {
+                        // There was an unknown problem with updating
+                        // the blog entry
+                        alert("There was a problem saving this blog entry");
+                    }
                 })
-                .catch(e => e);
+                .catch(e => console.log(e));
         }
     },
     created() {
+        // Verify we have a valid id
         if (parseInt(this.id) != this.id) {
             this.$router.push("/admin/blog");
         } else {
+            // Gather blog entry information
             this.$store.dispatch("showModal", true);
             this.$store
                 .dispatch("getEntry", this.id)

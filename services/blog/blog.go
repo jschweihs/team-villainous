@@ -169,11 +169,10 @@ func (s *Service) UpdateByID(id int, params *UpdateParams) (*BlogEntry, error) {
 	}
 
 	dbb, err = s.db.Blog.Update(id, &dbblog.UpdateParams{
-		Title:     params.Title,
-		UserID:    params.UserID,
-		Preview:   params.Preview,
-		Content:   params.Content,
-		UpdatedAt: params.UpdatedAt,
+		Title:   params.Title,
+		UserID:  params.UserID,
+		Preview: params.Preview,
+		Content: params.Content,
 	})
 	if err != nil {
 		return nil, err

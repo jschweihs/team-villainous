@@ -1,103 +1,97 @@
 <template>
-  <div id="app">
-    <vil-nav></vil-nav>
-    <div class="body-wrapper">
-      <transition name="slide" mode="out-in">
-        <router-view/>
-      </transition>
+    <div id="app">
+        <vil-nav></vil-nav>
+        <div class="body-wrapper">
+            <transition name="slide" mode="out-in">
+                <router-view />
+            </transition>
+        </div>
+        <foot></foot>
+
+        <!-- Loading modal -->
+        <loading-modal></loading-modal>
     </div>
-    <foot></foot>
-
-    <!-- Loading modal -->
-    <loading-modal></loading-modal>
-
-  </div>
 </template>
 
 <script>
+import Nav from "./components/nav/Nav.vue";
+import Foot from "./components/footer/Foot.vue";
+import LoadingModal from "./components/utils/LoadingModal.vue";
 
-  import Nav            from './components/nav/Nav.vue';
-  import Foot           from './components/footer/Foot.vue';
-  import LoadingModal   from './components/utils/LoadingModal.vue';
+import Cookie from "./utils/Cookie";
 
-  import Cookie         from './utils/Cookie';
-
-  export default {
-    name: 'app',
+export default {
+    name: "app",
     components: {
-      LoadingModal,
-      vilNav: Nav,
-      Foot
+        LoadingModal,
+        vilNav: Nav,
+        Foot
     },
     beforeCreate() {
-      // Grab cookie if it exists
-      const token = Cookie.getCookie('token');
-      if( token != '' ) {
-        this.$store.dispatch('setCurrentUser', token)
-      }
+        // Attempt to grab current user
+        this.$store.dispatch("getCurrentUser");
     }
-  }
-
+};
 </script>
 
 <style>
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+}
 
-  *,
-  *::before,
-  *::after {
-      margin: 0;
-      padding: 0
-  }
+html,
+body {
+    height: 100%;
+}
 
-  html, body {
-      height: 100%;
-  }
-
-  body {
+body {
     background-color: var(--color-primary-dark);
-  }
+}
 
-  #app {
+#app {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     min-height: 100%;
-  }
+}
 
-  .body-wrapper {
+.body-wrapper {
     background-color: var(--color-grey-very-dark);
     /* padding: 3rem 6rem; */
     flex: 1;
     padding-top: 2rem;
     padding-bottom: 2rem;
-  }
+}
 
-  .slide-enter-active {
+.slide-enter-active {
     animation: slide-in 200ms easy-out forwards;
-  }
-  .slide-leave-active {
+}
+.slide-leave-active {
     animation: slide-out 200ms ease-out forwards;
-  }
+}
 
-  @keyframes slide-in {
+@keyframes slide-in {
     from {
-      transform: translateY(-30px);
-      opacity: 0;
+        transform: translateY(-30px);
+        opacity: 0;
     }
     to {
-      transform: translateY(0);
-      opacity: 1;
+        transform: translateY(0);
+        opacity: 1;
     }
-  }
+}
 
-  @keyframes slide-out {
+@keyframes slide-out {
     from {
-      transform: translateY(0);
-      opacity: 1;
+        transform: translateY(0);
+        opacity: 1;
     }
     to {
-      transform: translateY(-30px);
-      opacity: 0;
+        transform: translateY(-30px);
+        opacity: 0;
     }
-  }
+}
 </style>

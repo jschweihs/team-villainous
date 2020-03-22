@@ -3,7 +3,6 @@ package blog
 import (
 	"database/sql"
 	"fmt"
-	"reflect"
 	"time"
 )
 
@@ -54,7 +53,8 @@ VALUES (
 `
 
 	// stmtSelect defines the SQL statement to
-	// select a set of blog entries.
+	// select a set of blog entries with default
+	// sort by created datetime, newest to oldest
 	stmtSelect = `
 SELECT 
 	id,
@@ -66,6 +66,7 @@ SELECT
 	updated_at
 FROM blog
 %s
+ORDER BY created_at DESC
 LIMIT %v, %v
 `
 
@@ -285,11 +286,10 @@ func (db *Database) Get(params *GetParams) (*BlogEntries, error) {
 
 // UpdateParams defines the parameters for the Update method.
 type UpdateParams struct {
-	Title     *string    `json:"title"`
-	UserID    *int       `json:"user_id"`
-	Preview   *string    `json:"preview"`
-	Content   *string    `json:"content"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	Title   *string `json:"title"`
+	UserID  *int    `json:"user_id"`
+	Preview *string `json:"preview"`
+	Content *string `json:"content"`
 }
 
 // Update updates a blog entry
@@ -299,38 +299,57 @@ func (db *Database) Update(id int, params *UpdateParams) (*BlogEntry, error) {
 	var queryFields string
 	var queryValues []interface{}
 
-	// Get fields and their values
-	fields := reflect.TypeOf(*params)
-	values := reflect.ValueOf(*params)
-	size := fields.NumField()
-
-	// Range through provided params to build query string
-	for i := 0; i < size; i++ {
-		// Get field and value from set of fields and values
-		field := fields.Field(i)
-		value := values.Field(i)
-
-		// Only generate query based on values that are provided
-		if !value.IsNil() {
-			// Get value from value
-			value = reflect.Indirect(value)
-
-			// Assume json tag matches database column
-			// If we change our mind about this assumption,
-			// We can use another set of data for reference
-			tag := field.Tag.Get("json")
-			if queryFields == "" {
-				queryFields = tag + "=?"
-			} else {
-				queryFields += ", " + tag + "=?"
-			}
-			queryValues = append(queryValues, value.String())
+	// Handle title field.
+	if params.Title != nil {
+		if queryFields == "" {
+			queryFields = "title=?"
+		} else {
+			queryFields += ", title=?"
 		}
+
+		queryValues = append(queryValues, *params.Title)
+	}
+
+	// Handle user_id field.
+	if params.UserID != nil {
+		if queryFields == "" {
+			queryFields = "user_id=?"
+		} else {
+			queryFields += ", user_id=?"
+		}
+
+		queryValues = append(queryValues, *params.UserID)
+	}
+
+	// Handle preview field.
+	if params.Preview != nil {
+		if queryFields == "" {
+			queryFields = "preview=?"
+		} else {
+			queryFields += ", preview=?"
+		}
+
+		queryValues = append(queryValues, *params.Preview)
+	}
+
+	// Handle content field.
+	if params.Content != nil {
+		if queryFields == "" {
+			queryFields = "content=?"
+		} else {
+			queryFields += ", content=?"
+		}
+
+		queryValues = append(queryValues, *params.Content)
 	}
 
 	// Check if the query is empty
 	if queryFields == "" {
 		return db.GetByID(id)
+	} else {
+		// Handle updated_at
+		queryFields += ", updated_at=?"
+		queryValues = append(queryValues, time.Now())
 	}
 
 	// Build the full query.

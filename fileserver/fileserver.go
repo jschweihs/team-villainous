@@ -24,6 +24,8 @@ func New(router *httprouter.Router) {
 	router.GET("/admin/users", HandleIndex())
 	router.GET("/admin/users/:id", HandleIndex())
 	router.GET("/admin/roles", HandleIndex())
+	router.GET("/admin/blog", HandleIndex())
+	router.GET("/admin/blog/:id", HandleIndex())
 
 	router.GET("/favicon.ico", HandleFavIcon())
 	router.GET("/admin/favicon.ico", HandleFavIcon())

@@ -6,12 +6,12 @@
             hear from you. Head over to the Contact page and send us your information.
             If we are interested then we will get back to you quickly!
         </p>
-        <div v-if="userGroups && roles">
+        <div v-if="groupedUsers && roles">
             <team-section
-                v-for="(group, index) in userGroups"
-                :key="index"
+                v-for="(group, roleName) in groupedUsers"
+                :key="roleName"
+                :roleName="roleName"
                 :group="group"
-                :roles="roles"
                 @remove="removeUser"
             />
         </div>
@@ -28,12 +28,7 @@ export default {
         TeamSection
     },
     computed: {
-        ...mapGetters(["roles", "users"]),
-        userGroups() {
-            if (this.users && this.roles) {
-                return this.$store.getters.userGroups;
-            }
-        }
+        ...mapGetters(["groupedUsers", "roles"])
     },
     methods: {
         removeUser(user_id) {
@@ -51,7 +46,7 @@ export default {
     created() {
         this.$store.dispatch("showModal", true);
         Promise.all([
-            this.$store.dispatch("getUsers"),
+            this.$store.dispatch("getUsers", { status: 1 }),
             this.$store.dispatch("getRoles")
         ])
             .then(res => {
