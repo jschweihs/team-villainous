@@ -35,15 +35,15 @@ const mutations = {
 const actions = {
   // Add a new entry to the blog
   addEntry: ({ commit, getters }, payload) => {
+    // Get blog entry from payload
     const entry = payload.entry;
-    console.log("entry", entry);
+
+    // Add entry
     return axios
       .post("//teamvillainous.com/api/v1/blog", entry, {
         headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
-        console.log("res", res);
-
         // Check for errors
         if (
           res.data.errors &&
@@ -58,11 +58,6 @@ const actions = {
           // We probably need to update the image name here
           payload.image.delete("name");
           payload.image.append("name", res.data.data.id);
-
-          // Display the key/value pairs
-          for (var pair of payload.image.entries()) {
-            console.log(pair[0] + ", " + pair[1]);
-          }
 
           // Save blog entry image
           axios
@@ -87,7 +82,6 @@ const actions = {
       return axios
         .get("//teamvillainous.com/api/v1/blog")
         .then(res => {
-          console.log("get blog res", res);
           commit("SET_BLOG", res.data.data);
         })
         .catch(e => e);
@@ -114,7 +108,6 @@ const actions = {
         headers: { Authorization: `Bearer ${getters.token}` }
       })
       .then(res => {
-        console.log("Update blog res", res);
         // Check for errors
         if (
           res.data.errors &&

@@ -87,10 +87,6 @@ export default {
             // Save entry
             this.$emit("save", payload);
         }
-    },
-    created() {
-        console.log("editEntry", this.editEntry);
-        console.log("type of editEntry id", typeof this.editEntry.id);
     }
 };
 </script>

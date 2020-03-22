@@ -3,7 +3,6 @@ import Vue from "vue";
 // Dates an ISO date string and
 // returns a beautified version of a date
 Vue.filter("date", function(value) {
-  console.log("filter date value", value);
   if (!value) {
     return;
   }

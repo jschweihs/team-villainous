@@ -25,7 +25,6 @@ export default {
             return this.$store
                 .dispatch("addEntry", entry)
                 .then(res => {
-                    console.log("component res", res);
                     this.$store.dispatch("showModal", false);
                     if (
                         res.data &&

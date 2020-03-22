@@ -26,7 +26,6 @@ export default {
     },
     methods: {
         updateEntry(entry) {
-            console.log("Component entry", entry);
             this.$store
                 .dispatch("updateEntry", entry)
                 .then(res => {
