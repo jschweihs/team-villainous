@@ -2,7 +2,6 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -100,7 +99,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		}
 
 		user, err := auth.GetUserFromRequest(r)
-		if err != nil {r)
+		if err != nil {
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
