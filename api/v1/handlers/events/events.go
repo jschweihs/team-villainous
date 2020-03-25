@@ -95,14 +95,12 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servevents.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
 
 		user, err := auth.GetUserFromRequest(r)
-		if err != nil {
-			fmt.Println(err)
+		if err != nil {r)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -111,11 +109,9 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Try to create a new event
 		event, err := ac.Services.Events.New(&params)
 		if pes, ok := err.(*serverrors.ParamErrors); ok && err != nil {
-			fmt.Println(err)
 			errors.Params(ac.Logger, w, http.StatusBadRequest, pes)
 			return
 		} else if err != nil {
-			fmt.Println(err)
 			ac.Logger.Printf("events.New() service error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
@@ -147,7 +143,6 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
-			fmt.Println(err)
 			ac.Logger.Printf("render.JSON() error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
