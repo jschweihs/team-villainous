@@ -18,43 +18,6 @@ export default {
             type: Object,
             required: true
         }
-    },
-    filters: {
-        date: function(value) {
-            const date = value.includes(" ")
-                ? value.split(" ")[0]
-                : value.split("T")[0];
-            const date_array = date.split("-");
-            const year = date_array[0];
-            const months = [
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December"
-            ];
-            const month = months[date_array[1] - 1];
-            const day = parseInt(date_array[2]);
-
-            // Add suffix
-            let suffix = "th";
-            if (day == 1 || day == 21 || day == 31) {
-                suffix = "st";
-            } else if (day == 2 || day == 22) {
-                suffix = "nd";
-            } else if (day == 3 || day == 23) {
-                suffix = "rd";
-            }
-
-            return month + " " + day + suffix + ", " + year;
-        }
     }
 };
 </script>

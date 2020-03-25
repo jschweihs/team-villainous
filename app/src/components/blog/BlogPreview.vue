@@ -36,7 +36,7 @@ export default {
     },
     created() {
         if (!this.user) {
-            this.$emit("getUser", this.entry.user_id);
+            this.$emit("get-user", this.entry.user_id);
         }
     }
 };

@@ -36,6 +36,9 @@ class Validator {
   // Assumes 4 digits for year
   // order expects a 3 digit string use Y, M, and D
   static validDate(date, separator = "/", order = "MDY") {
+    if (!date) {
+      return false;
+    }
     // Check length
     if (date.length != 10) {
       return false;

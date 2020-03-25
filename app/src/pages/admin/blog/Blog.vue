@@ -8,7 +8,7 @@
                 :user="user(entry.user_id)"
                 :key="entry.id"
                 :entry="entry"
-                @getUser="getUser"
+                @get-user="getUser"
                 @edit="editEntry"
                 @remove="removeEntry"
             />
@@ -30,7 +30,6 @@ export default {
     },
     methods: {
         getUser(id) {
-            console.log("getUser id", id);
             this.$store.dispatch("showModal", true);
             this.$store
                 .dispatch("getUser", id)

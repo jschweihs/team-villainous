@@ -1,173 +1,251 @@
 <template>
     <div>
-        <form @submit.prevent="save" enctype="multipart/form-data">
-            <div class="flex">
-                <div class="profile-pic">
-                    <div class="picture-preview">
-                        <label class="img-label">Profile Picture</label>
-                        <img
-                            width="260"
-                            height="260"
-                            :src="user.profile_picture"
-                            onclick="document.getElementById('profile-picture').click()"
-                        />
-                        <label for="profile-picture" class="file-label">Select</label>
+        <form @submit.prevent="save" enctype="multipart/form-data" id="user-form">
+            <p v-if="showError" class="error text-center">{{ error }}</p>
+            <fieldset>
+                <legend>User Information</legend>
+
+                <div class="flex">
+                    <div class="profile-pic">
+                        <div class="picture-preview">
+                            <label for="promo-display" class="img-label">Profile Picture</label>
+                            <img
+                                id="promo-display"
+                                width="260"
+                                height="260"
+                                :src="user.profile_picture"
+                                onclick="document.getElementById('profile-picture').click()"
+                            />
+
+                            <label for="profile-picture" class="file-label">Select</label>
+                            <input
+                                type="file"
+                                id="profile-picture"
+                                accept="image/jpeg"
+                                ref="profilepicture"
+                                v-model="image_path"
+                                @change="uploadImage"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="main-info">
+                        <label for="username">
+                            Username
+                            <span aria-hidden="true">*</span>
+                        </label>
                         <input
-                            type="file"
-                            id="profile-picture"
-                            accept="image/jpeg"
-                            ref="profilepicture"
-                            v-model="image_path"
-                            @change="uploadImage"
+                            type="text"
+                            v-model="user.username"
+                            id="username"
+                            :class="{'form-error': !validUsername && showError}"
+                            @keyup="checkForErrors"
+                            aria-describedby="error"
+                            placeholder="Vegeta"
+                            requried
+                        />
+
+                        <label for="email">
+                            Email
+                            <span aria-hidden="true">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            v-model="user.email"
+                            id="email"
+                            :class="{'form-error': !validEmail && showError}"
+                            @keyup="checkForErrors"
+                            placeholder="vegeta@planetvegeta.com"
+                        />
+
+                        <div v-if="!edituser">
+                            <label for="password">
+                                Password
+                                <span aria-hidden="true">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                v-model="user.password"
+                                id="password"
+                                :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                                @keyup="checkForErrors"
+                            />
+                            <label for="password-match">
+                                Password Confirm
+                                <span aria-hidden="true">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                v-model="passwordMatch"
+                                id="password-match"
+                                :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                                @keyup="checkForErrors"
+                            />
+                        </div>
+
+                        <label for="role">
+                            Role
+                            <span aria-hidden="true">*</span>
+                        </label>
+                        <select
+                            v-model="user.role"
+                            id="role"
+                            :class="{'form-error': !validRole && showError}"
+                            @keyup="checkForErrors"
+                        >
+                            <option value="0" disabled>Select role...</option>
+                            <option
+                                v-for="role in roles"
+                                :key="role.id"
+                                :value="role.id"
+                            >{{ role.name }}</option>
+                        </select>
+
+                        <label for="title">Title</label>
+                        <input
+                            type="text"
+                            v-model="user.title"
+                            id="title"
+                            placeholder="Price of All Saiyans"
                         />
                     </div>
                 </div>
-                <div class="main-info">
-                    <label>Username*</label>
-                    <input
-                        type="text"
-                        v-model="user.username"
-                        :class="{'form-error': !validUsername && showError}"
-                        @keyup="checkForErrors"
-                        placeholder="Vegeta"
-                    />
-                    <label>Email*</label>
-                    <input
-                        type="text"
-                        v-model="user.email"
-                        :class="{'form-error': !validEmail && showError}"
-                        @keyup="checkForErrors"
-                        placeholder="vegeta@planetvegeta.com"
-                    />
-                    <div v-if="!edituser">
-                        <label>Password*</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>Personal Information</legend>
+
+                <div class="flex">
+                    <div class="two-column mr-10">
+                        <label for="f-name">
+                            First Name
+                            <span aria-hidden="true">*</span>
+                        </label>
                         <input
-                            type="password"
-                            v-model="user.password"
-                            :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
+                            type="text"
+                            v-model="user.f_name"
+                            id="f-name"
+                            :class="{'form-error': !validFName && showError}"
                             @keyup="checkForErrors"
+                            placeholder="Vegeta"
                         />
-                        <label>Password Confirm*</label>
-                        <input
-                            type="password"
-                            v-model="passwordMatch"
-                            :class="{'form-error': (!validPassword || !validPasswordMatch) && showError}"
-                            @keyup="checkForErrors"
-                        />
+                        <label for="m-name">Middle Name</label>
+                        <input type="text" v-model="user.m_name" id="m-name" />
+                        <label for="l-name">Last Name</label>
+                        <input type="text" v-model="user.l_name" id="l-name" />
+                        <label for="description">Description</label>
+                        <textarea v-model="user.description" id="description"></textarea>
                     </div>
-                    <label>Role*</label>
-                    <select
-                        v-model="user.role"
-                        :class="{'form-error': !validRole && showError}"
-                        @keyup="checkForErrors"
-                    >
-                        <option value="0" disabled>Select role...</option>
-                        <option
-                            v-for="role in roles"
-                            :key="role.id"
-                            :value="role.id"
-                        >{{ role.name }}</option>
-                    </select>
-                    <label>Title</label>
-                    <input type="text" v-model="user.title" placeholder="Price of All Saiyans" />
-                </div>
-            </div>
+                    <div class="two-column ml-10">
+                        <label for="birth-date">Date of Birth</label>
+                        <input
+                            type="text"
+                            :class="{'form-error': !validDOB && showError}"
+                            id="birth-date"
+                            placeholder="mm/dd/yyyy"
+                            v-model="user.birth_date"
+                            v-mask="'##/##/####'"
+                            @keyup="checkForErrors"
+                        />
+                        <label for="address">Address</label>
+                        <input type="text" v-model="user.address" id="address" />
+                        <label for="city">City</label>
+                        <input type="text" v-model="user.city" id="city" />
+                        <div v-if="user.country == 'United States'">
+                            <label for="state">State</label>
+                            <select v-model="user.province" id="state">
+                                <option value disabled>Select state/province...</option>
+                                <option
+                                    v-for="state in states"
+                                    :key="state"
+                                    :value="state"
+                                >{{ state }}</option>
+                            </select>
+                        </div>
+                        <div v-else>
+                            <label for="province">Province</label>
+                            <input type="text" v-model="user.province" id="province" />
+                        </div>
 
-            <hr />
-
-            <div class="flex">
-                <div class="two-column mr-10">
-                    <label>First Name*</label>
-                    <input
-                        type="text"
-                        v-model="user.f_name"
-                        :class="{'form-error': !validFName && showError}"
-                        @keyup="checkForErrors"
-                        placeholder="Vegeta"
-                    />
-                    <label>Middle Name</label>
-                    <input type="text" v-model="user.m_name" />
-                    <label>Last Name</label>
-                    <input type="text" v-model="user.l_name" />
-                    <label>Description</label>
-                    <textarea v-model="user.description"></textarea>
-                </div>
-                <div class="two-column ml-10">
-                    <label>Date of Birth</label>
-                    <input
-                        type="text"
-                        :class="{'form-error': !validDOB && showError}"
-                        placeholder="mm/dd/yyyy"
-                        v-model="user.birth_date"
-                        v-mask="'##/##/####'"
-                        @keyup="checkForErrors"
-                    />
-                    <label>Address</label>
-                    <input type="text" v-model="user.address" />
-                    <label>City</label>
-                    <input type="text" v-model="user.city" />
-                    <div v-if="user.country == 'United States'">
-                        <label>State</label>
-                        <select v-model="user.province">
-                            <option value disabled>Select state/province...</option>
-                            <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
+                        <label for="zip">Zip code</label>
+                        <input type="text" v-model="user.zip" id="zip" />
+                        <label for="country">Country</label>
+                        <select v-model="user.country" @change="user.province = ''" id="country">
+                            <option value disabled>Select country...</option>
+                            <option
+                                v-for="country in countries"
+                                :key="country"
+                                :value="country"
+                            >{{ country }}</option>
                         </select>
                     </div>
-                    <div v-else>
-                        <label>Province</label>
-                        <input type="text" v-model="user.province" />
-                    </div>
-
-                    <label>Zip code</label>
-                    <input type="text" v-model="user.zip" />
-                    <label>Country</label>
-                    <select v-model="user.country" @change="user.province = ''">
-                        <option value disabled>Select country...</option>
-                        <option
-                            v-for="country in countries"
-                            :key="country"
-                            :value="country"
-                        >{{ country }}</option>
-                    </select>
                 </div>
-            </div>
+            </fieldset>
 
-            <hr />
+            <fieldset>
+                <legend>Social Media</legend>
+                <label for="facebook">Facebook</label>
+                <input
+                    type="text"
+                    v-model="user.facebook_url"
+                    id="facebook"
+                    placeholder="Facebook handle"
+                />
+                <label for="twitter">Twitter</label>
+                <input
+                    type="text"
+                    v-model="user.twitter_url"
+                    id="twitter"
+                    placeholder="Twitter handle"
+                />
+                <label for="instagram">Instagram</label>
+                <input
+                    type="text"
+                    v-model="user.instagram_url"
+                    id="instagram"
+                    placeholder="Instagram handle"
+                />
+                <label for="twitch">Twitch</label>
+                <input
+                    type="text"
+                    v-model="user.twitch_url"
+                    id="twitch"
+                    placeholder="Twitch handle"
+                />
+                <label for="youtube">Youtube</label>
+                <input
+                    type="text"
+                    v-model="user.youtube_url"
+                    id="youtube"
+                    placeholder="http://youtube.com/myChannel"
+                />
+                <label for="other">Other</label>
+                <input
+                    type="text"
+                    v-model="user.other_url"
+                    id="other"
+                    placeholder="http://my-website.com"
+                />
+            </fieldset>
 
-            <label>Facebook</label>
-            <input type="text" v-model="user.facebook_url" placeholder="Facebook handle" />
-            <label>Twitter</label>
-            <input type="text" v-model="user.twitter_url" placeholder="Twitter handle" />
-            <label>Instagram</label>
-            <input type="text" v-model="user.instagram_url" placeholder="Instagram handle" />
-            <label>Twitch</label>
-            <input type="text" v-model="user.twitch_url" placeholder="Twitch handle" />
-            <label>Youtube</label>
-            <input
-                type="text"
-                v-model="user.youtube_url"
-                placeholder="http://youtube.com/myChannel"
-            />
-            <label>Other</label>
-            <input type="text" v-model="user.other_url" placeholder="http://my-website.com" />
+            <fieldset>
+                <legend>Gamertags</legend>
+                <label for="ps4-gamertag">PS4 Gamertag</label>
+                <input type="text" v-model="user.ps4_gamertag" id="ps4-gamertag" />
+                <label for="xbox-gamertag">XBox Gamertag</label>
+                <input type="text" v-model="user.xbox_gamertag" id="xbox-gamertag" />
+                <label for="steam-gamertag">Steam Gamertag</label>
+                <input type="text" v-model="user.steam_gamertag" id="steam-gamertag" />
+            </fieldset>
 
-            <hr />
+            <fieldset>
+                <div class="submit-wrapper">
+                    <input type="submit" value="Save User" :disabled="!validForm" />
+                    <div class="submit-overlay" @mouseover="showError = true" @click="scrollToTop"></div>
+                </div>
+            </fieldset>
 
-            <label>PS4 Gamertag</label>
-            <input type="text" v-model="user.ps4_gamertag" />
-            <label>XBox Gamertag</label>
-            <input type="text" v-model="user.xbox_gamertag" />
-            <label>Steam Gamertag</label>
-            <input type="text" v-model="user.steam_gamertag" />
-
-            <hr />
-
-            <div class="submit-wrapper">
-                <input type="submit" value="Save User" :disabled="!validForm" />
-                <div class="submit-overlay" @mouseover="showError = true"></div>
-            </div>
-
-            <p class="error text-center" v-if="showError">{{ error }}</p>
+            <p v-if="showError" class="error text-center">{{ error }}</p>
         </form>
     </div>
 </template>
@@ -282,6 +360,7 @@ export default {
         },
         validDOB() {
             if (this.user.birth_date != "") {
+                console.log("birth date", this.user.birth_date);
                 return Validator.validDate(this.user.birth_date);
             }
             return true;
@@ -351,6 +430,12 @@ export default {
 
             // Save user
             this.$emit("save", payload);
+        },
+        // Moves the view to the beginning of the form
+        scrollToTop() {
+            document.getElementById("user-form").scrollIntoView({
+                behavior: "smooth"
+            });
         }
     },
     created() {
@@ -366,6 +451,10 @@ export default {
 </script>
 
 <style scoped>
+.p1 {
+    padding: 1rem;
+}
+
 .flex {
     display: flex;
 }
@@ -384,6 +473,19 @@ export default {
 hr {
     margin: 20px 0;
     border: 1px solid var(--color-grey-light);
+}
+
+fieldset {
+    padding: 0.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-grey-light);
+}
+
+legend {
+    color: white;
+    font-family: inherit;
+    padding: 0 0.5rem;
+    text-align: center;
 }
 
 img {

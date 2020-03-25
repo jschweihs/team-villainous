@@ -2,14 +2,31 @@
     <div class="content half">
         <h1>Contact</h1>
         <form method="post" @submit.prevent="sendEmail">
-            <input type="text" v-model="email.name" placeholder="Name" required />
-            <input type="text" v-model="email.address" placeholder="Email" required />
+            <label for="name">Name</label>
+            <input type="text" v-model="email.name" id="name" placeholder="Kratos" required />
+
+            <label for="email">Email</label>
+            <input
+                type="text"
+                v-model="email.address"
+                id="email"
+                placeholder="godofwar@sparta.com"
+                required
+            />
+
+            <label for="category">Category</label>
             <select v-modoel="email.category" required>
-                <option value disabled selected hidden>Category</option>
+                <option value disabled selected>Select option..</option>
                 <option>Team Request</option>
                 <option>Tournament Entry</option>
             </select>
-            <textarea placeholder="Enter message here..." v-model="email.message" requried></textarea>
+            <label for="message">Message</label>
+            <textarea
+                id="message"
+                v-model="email.message"
+                placeholder="Enter message here..."
+                requried
+            ></textarea>
             <input type="submit" />
         </form>
         <p>Thank you for reaching out to Team Villainous. Please allow our team to respond to your inquiry within 24 hours. You can also contact us on any of our social media.</p>
@@ -50,17 +67,38 @@ form {
     margin: 0 auto;
 }
 
+label {
+    color: white;
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+    padding-left: 8px;
+    font-family: "Geizer", cursive;
+    letter-spacing: 2px;
+}
+
 input,
 select,
 textarea {
+    display: block;
     width: 100%;
+    font-size: 20px;
+    font-family: inherit;
+    padding: 12px 24px;
+    margin-bottom: 10px;
     border-radius: 8px;
-    font-size: 24px;
-    padding: 10px;
-    margin: 10px 0;
-    font-family: "Nixie One", cursive;
-    border: 0;
-    box-sizing: border-box;
+    border: 2px solid transparent;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
+    transition: all 0.25s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border: 2px solid var(--color-secondary);
+    outline: none;
 }
 
 textarea {
@@ -68,11 +106,28 @@ textarea {
 }
 
 input[type="submit"] {
-    background-color: #ffc200;
-    cursor: pointer;
     color: white;
-    font-weight: bold;
+    margin-top: 20px;
+    background-color: var(--color-secondary);
+    border: 0;
     height: 60px;
+    cursor: pointer;
+    font-family: "Geizer", cursive;
+    letter-spacing: 2px;
+    border-radius: 8px;
+    transform: translateY(0);
+    transition: all 0.25s;
+}
+
+input[type="submit"]:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-secondary-light);
+}
+
+input[type="submit"]:disabled {
+    background-color: #bebebe;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 select:required:invalid {

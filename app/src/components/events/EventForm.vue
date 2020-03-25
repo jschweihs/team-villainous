@@ -1,13 +1,16 @@
 <template>
     <div class="event-form">
         <form @submit.prevent="save">
-            <label>Name *</label>
-            <input type="text" v-model="event.title" />
-            <label class="img-label">Promo Picture</label>
+            <labe for="name">Name *</labe>
+            <input type="text" id="name" v-model="event.name" />
+
+            <label for="promo-display" class="img-label">Promo Picture</label>
             <img
+                id="promo-display"
                 :src="event.promo_picture"
                 onclick="document.getElementById('promo-picture').click()"
             />
+
             <label for="promo-picture" class="file-label">Select</label>
             <input
                 type="file"
@@ -17,44 +20,55 @@
                 v-model="image_path"
                 @change="uploadImage"
             />
-            <label>Location</label>
-            <input type="text" v-model="event.location" placeholder="Allstate Arena in Chicago, IL" />
-            {{ event.showStartTime }}
-            <label>Starts At</label>
-            <input type="datetime-local" v-model="event.start_datetime" />
 
-            <input type="checkbox" class="mb1" id="show-start-time" v-model="event.showStartTime" />
+            <label for="location">Location</label>
+            <input
+                type="text"
+                id="location"
+                v-model="event.location"
+                placeholder="Allstate Arena in Chicago, IL"
+            />
+
+            <label for="start-datetime">Starts At</label>
+            <input type="datetime-local" id="start-datetime" v-model="event.start_datetime" />
+
+            <input type="checkbox" id="show-start-time" class="mb1" v-model="event.showStartTime" />
             <label class="checkbox-label" for="show-start-time">Show time</label>
 
-            <label>Ends At</label>
-            <input type="datetime-local" v-model="event.end_datetime" />
+            <label for="end-datetime">Ends At</label>
+            <input type="datetime-local" id="end-datetime" v-model="event.end_datetime" />
 
             <input type="checkbox" class="mb1" id="show-end-time" v-model="event.showEndTime" />
             <label class="checkbox-label" for="show-end-time">Show time</label>
 
-            <label>Type</label>
-            <select v-model="event.type">
+            <label for="type">Type</label>
+            <select v-model="event.type" id="type">
                 <option value selected disabled>Select event type...</option>
                 <option value="1">Tournament</option>
                 <option value="2">Other</option>
             </select>
 
-            <label>Game</label>
-            <select v-model="event.game_id">
+            <label for="game-id">Game</label>
+            <select v-model="event.game_id" id="game-id">
                 <option value="0" disabled selected="selected">Choose game (if applicable)</option>
                 <option value="1">Fortnite</option>
                 <option value="2">Call of Duty</option>
                 <option value="3">Apex Legends</option>
             </select>
 
-            <label>Description</label>
-            <textarea v-model="event.description"></textarea>
+            <label for="description">Description</label>
+            <textarea v-model="event.description" id="description"></textarea>
 
-            <label>Referral Url</label>
-            <input type="text" v-model="event.referral_url" placeholder="http://google.com" />
+            <label for="referral-url">Referral Url</label>
+            <input
+                type="text"
+                id="referral-url"
+                v-model="event.referral_url"
+                placeholder="http://google.com"
+            />
 
-            <label>Status</label>
-            <select v-model="event.status">
+            <label for="status">Status</label>
+            <select v-model="event.status" id="status">
                 <option value="1">Active</option>
                 <option value="2">Inactive</option>
             </select>
@@ -62,7 +76,7 @@
             <label>Users</label>
             <div class="multi-select" v-for="index in numUsers" :key="index">
                 <select type="text" class="multi-input" v-model="event.users[index - 1]">
-                    <option value disabled selected>Select user...</option>
+                    <option value disabled>Select user...</option>
                     <option
                         v-for="user in users"
                         :key="user.id"
@@ -102,14 +116,11 @@ export default {
         }
     },
     computed: {
-        current_user() {
-            return this.$store.getters.current_user;
+        currentUser() {
+            return this.$store.getters.currentUser;
         },
-        image_name() {
-            return this.event.title.toLowerCase().replace(" ", "_");
-        },
-        user_id() {
-            return this.$store;
+        imageName() {
+            return this.event.name.toLowerCase().replace(" ", "");
         }
     },
     data() {
@@ -125,7 +136,7 @@ export default {
                           "/images/events/" + this.editEvent.id + ".jpg"
                   }
                 : {
-                      title: "",
+                      name: "",
                       user_id: this.current_user ? this.current_user.id : "1",
                       username: this.current_user
                           ? this.current_user.username

@@ -1,6 +1,6 @@
 <template>
-    <div v-if="group && group.length > 0">
-        <h2>{{ roleName }}</h2>
+    <fieldset v-if="group && group.length > 0">
+        <legend>{{ roleName }}</legend>
         <div class="team">
             <team-member
                 v-for="(user, index) in group"
@@ -10,7 +10,7 @@
                 :isAdmin="isAdmin"
             />
         </div>
-    </div>
+    </fieldset>
 </template>
 
 <script>
@@ -38,10 +38,17 @@ export default {
 </script>
 
 <style scoped>
-h2 {
+fieldset {
+    padding: 0.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-grey-light);
+}
+
+legend {
     color: white;
+    font-family: inherit;
+    padding: 0 0.5rem;
     text-align: center;
-    margin-bottom: 1rem;
 }
 
 .team {
@@ -55,8 +62,8 @@ h2 {
     -webkit-flex-direction: row;
     flex-direction: row;
     flex-wrap: wrap;
-    -webkit-justify-content: space-around;
-    justify-content: space-around;
+    -webkit-justify-content: center;
+    justify-content: center;
     -webkit-align-content: space-around;
     align-content: space-around;
     margin-bottom: 40px;

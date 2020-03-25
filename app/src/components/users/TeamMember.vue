@@ -1,57 +1,61 @@
 <template>
-    <div class="team-m">
-        <div class="team-member">
-            <h3 class="team-member-title">ViL {{ user.username }}</h3>
-            <img width="260" height="260" :src="profileImageURL" :alt="'ViL_' + user.username" />
-            <h3 class="team-member-name">{{ name }}</h3>
-            <h4 class="team-member-loc">{{ location }}</h4>
-            <p class="team-member-description">{{ user.description }}</p>
-            <div class="member-links">
-                <a
-                    v-if="user.facebook_url != ''"
-                    :href="'https://www.facebook.com/' + user.facebook_url"
-                    target="_blank"
-                >
-                    <i class="fab fa-facebook"></i>
-                </a>
-                <a
-                    v-if="user.twitter_url != ''"
-                    :href="'https://www.twitter.com/' + user.twitter_url"
-                    target="_blank"
-                >
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a
-                    v-if="user.instagram_url != ''"
-                    :href="'https://www.instagram.com/' + user.instagram_url"
-                    target="_blank"
-                >
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a
-                    v-if="user.twitch_url != ''"
-                    :href="'http://twitch.tv/' + user.twitch_url"
-                    target="_blank"
-                >
-                    <i class="fab fa-twitch"></i>
-                </a>
-                <a v-if="user.youtube_url != ''" :href="user.youtube_url" target="_blank">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a v-if="user.other_url != ''" :href="user.other_url" target="_blank">
-                    <i class="fas fa-home"></i>
-                </a>
-            </div>
-            <div class="admin-links" v-if="isAdmin">
-                <router-link tag="a" :to="'/admin/users/' + user.id">
-                    <i class="far fa-edit"></i>
-                </router-link>
-                <button @click="remove">
-                    <i class="far fa-trash-alt"></i>
-                </button>
-            </div>
-        </div>
-    </div>
+    <article class="team-member">
+        <h3 class="team-member-title">ViL {{ user.username }}</h3>
+        <img
+            width="260"
+            height="260"
+            :src="profileImageURL"
+            :alt="'ViL_' + user.username"
+            onerror="this.onerror=null;this.src='/images/users/placeholder.jpg';"
+        />
+        <h3 class="team-member-name">{{ name }}</h3>
+        <h4 class="team-member-loc">{{ location }}</h4>
+        <p class="team-member-description">{{ user.description }}</p>
+        <nav class="member-links">
+            <a
+                v-if="user.facebook_url != ''"
+                :href="'https://www.facebook.com/' + user.facebook_url"
+                target="_blank"
+            >
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a
+                v-if="user.twitter_url != ''"
+                :href="'https://www.twitter.com/' + user.twitter_url"
+                target="_blank"
+            >
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a
+                v-if="user.instagram_url != ''"
+                :href="'https://www.instagram.com/' + user.instagram_url"
+                target="_blank"
+            >
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a
+                v-if="user.twitch_url != ''"
+                :href="'http://twitch.tv/' + user.twitch_url"
+                target="_blank"
+            >
+                <i class="fab fa-twitch"></i>
+            </a>
+            <a v-if="user.youtube_url != ''" :href="user.youtube_url" target="_blank">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a v-if="user.other_url != ''" :href="user.other_url" target="_blank">
+                <i class="fas fa-home"></i>
+            </a>
+        </nav>
+        <nav class="admin-links" v-if="isAdmin">
+            <router-link tag="a" :to="'/admin/users/' + user.id">
+                <i class="far fa-edit"></i>
+            </router-link>
+            <button @click="remove">
+                <i class="far fa-trash-alt"></i>
+            </button>
+        </nav>
+    </article>
 </template>
 
 <script>
@@ -93,7 +97,8 @@ export default {
             return (
                 "/images/users/ViL_" +
                 this.user.username.split(" ").join("") +
-                ".jpg"
+                ".jpg?t=" +
+                Date.now()
             );
         }
     },
@@ -108,20 +113,16 @@ export default {
 </script>
 
 <style scoped>
-.team-m {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: auto;
-    margin-bottom: 20px;
-}
-
 .team-member {
     width: 260px;
-    margin: 0 auto;
+    margin: 0 10px;
     padding: 20px;
     border: 1px solid var(--color-grey-light);
     border-radius: 20px;
     background-color: var(--color-grey-medium);
+    flex-shrink: 1;
+    flex-basis: auto;
+    margin-bottom: 20px;
 }
 
 .team-member-title {
@@ -134,6 +135,7 @@ export default {
 .team-member img {
     width: 260px;
     border-radius: 20px;
+    object-fit: cover;
 }
 
 .team-member h3,

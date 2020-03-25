@@ -1,10 +1,11 @@
 <template>
     <div class="blog-form">
         <form @submit.prevent="save">
-            <label>Title*</label>
-            <input type="text" v-model="entry.title" />
-            <label class="img-label">Promo Picture</label>
+            <label for="title">Title*</label>
+            <input type="text" id="title" v-model="entry.title" />
+            <label class="img-label" for="promo-display">Promo Picture</label>
             <img
+                id="promo-display"
                 :src="entry.promo_picture"
                 onclick="document.getElementById('promo-picture').click()"
             />
@@ -17,10 +18,10 @@
                 v-model="image_path"
                 @change="uploadImage"
             />
-            <label>Content</label>
-            <textarea class="blog-content" v-model="entry.content"></textarea>
-            <label>Preview</label>
-            <textarea class="preview" v-model="entry.preview"></textarea>
+            <label for="content">Content</label>
+            <textarea id="content" class="blog-content" v-model="entry.content"></textarea>
+            <label for="preview">Preview</label>
+            <textarea id="preview" class="preview" v-model="entry.preview"></textarea>
             <input type="submit" value="Save Blog Entry" />
         </form>
     </div>

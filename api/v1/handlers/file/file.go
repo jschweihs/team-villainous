@@ -1,6 +1,7 @@
 package file
 
 import (
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -44,6 +45,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// This validates that this user exists and has their token
 		_, err := auth.GetUserFromRequest(r)
 		if err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -53,6 +55,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Parse multiform
 		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
@@ -60,17 +63,20 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Get new image name
 		name := strings.ReplaceAll(r.FormValue("name"), " ", "")
 		if name == "" {
+			fmt.Println("Bad name")
 			errs.Add(errors.New(http.StatusBadRequest, "name", ErrNameInvalid.Error()))
 		}
 
 		// Get folder name
 		folder := r.FormValue("folder")
 		if folder == "" {
+			fmt.Println("Bad Folder")
 			errs.Add(errors.New(http.StatusBadRequest, "folder", ErrFolderInvalid.Error()))
 		}
 
 		// Return if there were errors
 		if errs.Length() > 0 {
+			fmt.Println("errors")
 			errors.Multiple(ac.Logger, w, http.StatusBadRequest, errs)
 			return
 		}
@@ -85,10 +91,12 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		if file == nil || handler == nil {
 			file, err = os.Open("./../../app/public/images/" + folder + "/placeholder.jpg")
 			if err != nil {
+				fmt.Println(err)
 				errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			}
 			ext = ".jpg"
 		} else if err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		} else {
@@ -100,6 +108,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		appPath := "./../../app/public/images/" + folder + "/" + name + ext
 		appFile, err := os.Create(appPath)
 		if err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -108,6 +117,8 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Move uploaded file to appFile
 		size, err := io.Copy(appFile, file)
 		if size == 0 || err != nil {
+			fmt.Println(size)
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -115,6 +126,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Open file placed in app
 		in, err := os.Open(appPath)
 		if err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -124,6 +136,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		publicPath := "./../../public/images/" + folder + "/" + name + ext
 		publicFile, err := os.Create(publicPath)
 		if err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -132,6 +145,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Move uploaded file to publicFile
 		size, err = io.Copy(publicFile, in)
 		if size == 0 || err != nil {
+			fmt.Println(err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
 		}
@@ -143,6 +157,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 
 		// Render output
 		if err := render.JSON(w, true, result); err != nil {
+			fmt.Println(err)
 			ac.Logger.Printf("render.JSON() error: %s\n", err)
 			errors.Default(ac.Logger, w, errors.ErrInternalServerError)
 			return
