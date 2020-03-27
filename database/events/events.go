@@ -221,7 +221,7 @@ type NewParams struct {
 	Type          int       `json:"type"`
 	GameID        int       `json:"game_id"`
 	Description   string    `json:"description"`
-	ReferralURL   string    `json:"referralURL"`
+	ReferralURL   string    `json:"referral_url"`
 	Status        int       `json:"status"`
 	Placements    []int     `json:"placements"`
 	Users         []int     `json:"users"`
@@ -256,18 +256,21 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 	// Begin database transaction
 	tx, err := db.db.Begin()
 	if err != nil {
+		fmt.Printf("err: %v\n", err)
 		return nil, err
 	}
 
 	// Execute the query
 	if res, err = tx.Exec(stmtInsert, event.Name, event.Location, event.StartDatetime, event.ShowStartTime, event.EndDatetime, event.ShowEndTime, event.Type, event.GameID, event.Description, event.ReferralURL, event.Status, event.CreatedBy, event.ModifiedBy, event.CreatedAt, event.ModifiedAt); err != nil {
 		tx.Rollback()
+		fmt.Printf("err: %v\n", err)
 		return nil, err
 	}
 
 	// Get last insert ID
 	id, err := res.LastInsertId()
 	if err != nil {
+		fmt.Printf("err: %v\n", err)
 		return nil, err
 	}
 	event.ID = int(id)
@@ -283,6 +286,7 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 		//Execute query
 		if res, err = tx.Exec(stmtInsertPlacement, placement.EventID, placement.Placement); err != nil {
 			tx.Rollback()
+			fmt.Printf("err: %v\n", err)
 			return nil, err
 		}
 
@@ -301,6 +305,7 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 		//Execute query
 		if res, err = tx.Exec(stmtInsertUser, user.EventID, user.UserID); err != nil {
 			tx.Rollback()
+			fmt.Printf("err: %v\n", err)
 			return nil, err
 		}
 
@@ -311,6 +316,7 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 	// Commit transaction
 	err = tx.Commit()
 	if err != nil {
+		fmt.Printf("err: %v\n", err)
 		return nil, err
 	}
 

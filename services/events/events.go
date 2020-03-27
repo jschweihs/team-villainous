@@ -175,6 +175,8 @@ func (s *Service) GetByID(id int) (*Event, error) {
 		Location:      e.Location,
 		StartDatetime: e.StartDatetime,
 		ShowStartTime: e.ShowStartTime,
+		EndDatetime:   e.EndDatetime,
+		ShowEndTime:   e.ShowEndTime,
 		Type:          e.Type,
 		GameID:        e.GameID,
 		Description:   e.Description,
