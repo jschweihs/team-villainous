@@ -17,7 +17,7 @@
                 </p>
             </li>
 
-            <li class="partner">
+            <!-- <li class="partner">
                 <a href="https://homg.net/" target="_blank">
                     <img width="180" height="180" src="/images/partners/hitormissgaming.jpg" />
                 </a>
@@ -30,7 +30,7 @@
                         target="_blank"
                     >here</a>.
                 </p>
-            </li>
+            </li>-->
 
             <li class="partner">
                 <a href="https://advanced.gg/product-category/supplements/" target="_blank">

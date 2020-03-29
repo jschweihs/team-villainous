@@ -37,6 +37,42 @@ Vue.filter("date", function(value) {
 });
 
 // Dates an ISO date string and
+// returns a beautified version of a short date
+Vue.filter("shortDate", function(value) {
+  if (!value) {
+    return;
+  }
+  const date = value.includes(" ") ? value.split(" ")[0] : value.split("T")[0];
+  const dates = date.split("-");
+  const year = dates[0];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ];
+  const month = months[dates[1] - 1];
+  const day = parseInt(dates[2]);
+  let suffix = "th";
+  if (day == 1 || day == 21) {
+    suffix = "st";
+  } else if (day == 2 || day == 22) {
+    suffix = "nd";
+  } else if (day == 3 || day == 23) {
+    suffix = "rd";
+  }
+  return month + " " + day + suffix + ", " + year;
+});
+
+// Dates an ISO date string and
 // returns a beautified version of a date with time
 Vue.filter("isoToDateTime", function(date) {
   let datetime = [];
@@ -88,15 +124,15 @@ Vue.filter("isoToDateTime", function(date) {
 
   if (hour == 0) {
     hour = 12;
-  } else if (hour > 12) {
+  } else if (hour < 12) {
     // We good
   } else if (hour == 12) {
     ampm = "PM";
-  } else if (hour < 24) {
-    hour = hour - 12;
-    ampm = "PM";
   } else if (hour == 24) {
     hour == 12;
+    ampm = "PM";
+  } else {
+    hour = hour - 12;
     ampm = "PM";
   }
 

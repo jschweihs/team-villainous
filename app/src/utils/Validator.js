@@ -81,6 +81,98 @@ class Validator {
 
     return valid;
   }
+
+  // Checks validity of time
+  // Assumes 2 digits for hours and minutes
+  // HH:MM:SS
+  // Can optionally provide seconds
+  static validTime(time) {
+    if (!time) {
+      return false;
+    }
+    // Get parts of the time
+    const times = time.split(":");
+
+    const hour = times[0];
+    const minute = times[1];
+    const second = times[2];
+
+    // Track validity
+    let valid = true;
+
+    // Check for valid hour
+    // A valid hour has 2 digits and is a number somewhere between
+    // 0 and 23
+    valid =
+      valid &&
+      hour.length == 2 &&
+      hour == parseInt(hour) &&
+      hour >= 0 &&
+      hour <= 23;
+
+    // Check for valid minute
+    // A valid minute has 2 digits and is a number somewhere between
+    // 0 and 59
+    valid =
+      valid &&
+      minute.length == 2 &&
+      minute == parseInt(minute) &&
+      minute >= 0 &&
+      minute <= 59;
+
+    if (second) {
+      // Check for valid second
+      // A valid second has 2 digits and is a number somewhere between
+      // 0 and 59
+      valid =
+        valid &&
+        second.length == 2 &&
+        second == parseInt(second) &&
+        second >= 0 &&
+        second <= 59;
+    }
+
+    return valid;
+  }
+
+  // Checks validity of datetime
+  // See validDate and validTime for specific requirements
+  static validDatetime(
+    datetime,
+    dateSeparator = "/",
+    datetimeSeparator = "T",
+    dateOrder = "MDY"
+  ) {
+    if (!datetime) {
+      return false;
+    }
+
+    const dateParts = datetime.split(datetimeSeparator);
+    if (!dateParts || dateParts.length > 2) {
+      return false;
+    }
+
+    // Get date
+    const date = dateParts[0];
+
+    // Get time
+    const leftover = dateParts[1];
+    let time;
+    if (leftover.includes("Z")) {
+      time = leftover.split("Z")[0];
+    } else if (leftover.includes("+")) {
+      time = leftover.split("-")[0];
+    } else if (leftover.includes("-")) {
+      time = leftover.split("-")[0];
+    } else {
+      time = leftover;
+    }
+
+    // Return valid date and valid time
+    return (
+      this.validDate(date, dateSeparator, dateOrder) && this.validTime(time)
+    );
+  }
 }
 
 export default Validator;

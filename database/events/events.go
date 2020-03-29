@@ -256,21 +256,22 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 	// Begin database transaction
 	tx, err := db.db.Begin()
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("err1: %v\n", err)
 		return nil, err
 	}
 
 	// Execute the query
 	if res, err = tx.Exec(stmtInsert, event.Name, event.Location, event.StartDatetime, event.ShowStartTime, event.EndDatetime, event.ShowEndTime, event.Type, event.GameID, event.Description, event.ReferralURL, event.Status, event.CreatedBy, event.ModifiedBy, event.CreatedAt, event.ModifiedAt); err != nil {
 		tx.Rollback()
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("err2: %v\n", err)
 		return nil, err
 	}
 
 	// Get last insert ID
 	id, err := res.LastInsertId()
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("err3: %v\n", err)
+		tx.Rollback()
 		return nil, err
 	}
 	event.ID = int(id)
@@ -286,7 +287,7 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 		//Execute query
 		if res, err = tx.Exec(stmtInsertPlacement, placement.EventID, placement.Placement); err != nil {
 			tx.Rollback()
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("err4: %v\n", err)
 			return nil, err
 		}
 
@@ -305,7 +306,7 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 		//Execute query
 		if res, err = tx.Exec(stmtInsertUser, user.EventID, user.UserID); err != nil {
 			tx.Rollback()
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("err5: %v\n", err)
 			return nil, err
 		}
 
@@ -316,7 +317,8 @@ func (db *Database) New(params *NewParams) (*Event, error) {
 	// Commit transaction
 	err = tx.Commit()
 	if err != nil {
-		fmt.Printf("err: %v\n", err)
+		tx.Rollback()
+		fmt.Printf("err6: %v\n", err)
 		return nil, err
 	}
 
@@ -592,6 +594,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 	// Begin database transaction
 	tx, err := db.db.Begin()
 	if err != nil {
+		fmt.Printf("err %v\n", err)
 		return nil, err
 	}
 
@@ -730,6 +733,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 	// Execute the query
 	_, err = tx.Exec(query, queryValues...)
 	if err != nil {
+		fmt.Printf("err %v\n", err)
 		tx.Rollback()
 		return nil, err
 	}
@@ -739,6 +743,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 		// Delete existing placements
 		_, err = tx.Exec(stmtDeletePlacementsByEventID, id)
 		if err != nil {
+			fmt.Printf("err %v\n", err)
 			tx.Rollback()
 			return nil, err
 		}
@@ -753,6 +758,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 
 			//Execute query
 			if _, err := tx.Exec(stmtInsertPlacement, placement.EventID, placement.Placement); err != nil {
+				fmt.Printf("err %v\n", err)
 				tx.Rollback()
 				return nil, err
 			}
@@ -764,6 +770,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 		// Delete existing placements
 		_, err = tx.Exec(stmtDeleteUsersByEventID, id)
 		if err != nil {
+			fmt.Printf("err %v\n", err)
 			tx.Rollback()
 			return nil, err
 		}
@@ -778,6 +785,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 
 			//Execute query
 			if _, err := tx.Exec(stmtInsertUser, placement.EventID, placement.UserID); err != nil {
+				fmt.Printf("err %v\n", err)
 				tx.Rollback()
 				return nil, err
 			}
@@ -787,6 +795,7 @@ func (db *Database) Update(id int, params *UpdateParams) (*Event, error) {
 	// Commit transaction
 	err = tx.Commit()
 	if err != nil {
+		fmt.Printf("err %v\n", err)
 		return nil, err
 	}
 

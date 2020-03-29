@@ -4,14 +4,33 @@
         <router-link to="/admin/events/new" tag="button">Add New Event</router-link>
         <div v-if="events">
             <event
-                v-for="(event, index) in events"
+                v-for="(event, index) in activeEvents"
                 :key="index"
                 :event="event"
                 @edit="editEvent"
                 @remove="removeEvent"
                 admin
             />
+
+            <section>
+                <p class="text-action text-right" @click="toggleShowInactiveEvents">
+                    <span v-if="showInactiveEvents">Hide</span>
+                    <span v-else>Show</span>
+                    inactive events
+                </p>
+                <div class="mt1" v-if="showInactiveEvents">
+                    <event
+                        v-for="(event, index) in inactiveEvents"
+                        :key="index"
+                        :event="event"
+                        @edit="editEvent"
+                        @remove="removeEvent"
+                        admin
+                    />
+                </div>
+            </section>
         </div>
+        <div v-else>No events found</div>
     </div>
 </template>
 
@@ -24,15 +43,36 @@ export default {
     components: {
         Event
     },
+    data() {
+        return {
+            showInactiveEvents: false
+        };
+    },
     computed: {
-        ...mapGetters(["events"])
+        ...mapGetters(["events"]),
+        activeEvents() {
+            return this.events.filter(event => {
+                return event.status == 1;
+            });
+        },
+        inactiveEvents() {
+            return this.events.filter(event => {
+                return event.status == 2;
+            });
+        }
     },
     methods: {
-        editEvent(event_id) {
-            this.$router.push("/admin/events/" + entry_id);
+        editEvent(id) {
+            this.$router.push("/admin/events/" + id);
         },
-        removeEvent(event_id) {
-            // this.$store.dispatch('removeEvent', user_id);
+        removeEvent(id) {
+            this.$store.dispatch("showModal", true);
+            this.$store.dispatch("removeEvent", id).then(res => {
+                this.$store.dispatch("showModal", false);
+            });
+        },
+        toggleShowInactiveEvents() {
+            this.showInactiveEvents = !this.showInactiveEvents;
         }
     },
     created() {
@@ -87,5 +127,17 @@ button {
 button:hover {
     transform: translateY(-2px);
     background-color: var(--color-secondary-light);
+}
+
+.text-action {
+    padding-left: 8px;
+    color: var(--color-secondary);
+    cursor: pointer;
+    transition: all 0.25s;
+    font-size: 14px;
+}
+
+.text-action:hover {
+    color: var(--color-secondary-light);
 }
 </style>

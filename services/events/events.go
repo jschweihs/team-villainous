@@ -140,6 +140,8 @@ func (s *Service) Get(params *GetParams) (*Events, error) {
 			Location:      dbe.Location,
 			StartDatetime: dbe.StartDatetime,
 			ShowStartTime: dbe.ShowStartTime,
+			EndDatetime:   dbe.EndDatetime,
+			ShowEndTime:   dbe.ShowEndTime,
 			Type:          dbe.Type,
 			GameID:        dbe.GameID,
 			Description:   dbe.Description,

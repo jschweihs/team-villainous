@@ -1,82 +1,174 @@
-
-import axios from 'axios';
-
-import Cookie from './../../utils/Cookie';
+import axios from "axios";
 
 const state = {
-    events:         null,
-    events_types:   null
+  events: null,
+  events_types: null
 };
 
 const mutations = {
-    'ADD_EVENT' (state, event) {
-        state.events.push(event);
-    },
-    'GET_EVENTS' (state, events) {
-        state.events = events;
-    },
-    'UPDATE_EVENT' (state, event) {
-        state.events = state.events.map(r => {
-            return event.id == r.id ? event : r;
-        })
-    },
-    'REMOVE_EVENT' (state, event_id) {
-        state.events = state.events.filter(event => {
-            return event.id !== event_id;
-        })
-    },
+  // Add a new event
+  ADD_EVENT(state, event) {
+    // Create empty set of events if needed
+    if (!state.events) {
+      state.events = [];
+    }
+
+    // Add event to set of events
+    state.events.push(event);
+  },
+  // Get all events
+  SET_EVENTS(state, events) {
+    state.events = events;
+  },
+  UPDATE_EVENT(state, event) {
+    state.events = state.events.map(r => {
+      return event.id == r.id ? event : r;
+    });
+  },
+  REMOVE_EVENT(state, id) {
+    // Set event to status 2 (inactive)
+    state.events.forEach(event => {
+      if (event.id == id) {
+        event.status = 2;
+      }
+    });
+  }
 };
 
 const actions = {
-  
-    addEvent: ({commit}, event) => {
-        axios.post('http://teamvillainous.com/api/v1/event/create', { event })
-        .then(response => {
-            commit('ADD_EVENT', {name, id: response.data.id});
-        })
-        .catch(e => console.log(e));
-    },
+  // Add a new event
+  addEvent: ({ commit, getters }, payload) => {
+    // Fetch event from payload
+    const event = payload.event;
 
-    getEvents: ({commit, state}) => {
-        // Only hit api if events does not exist yet
-        if(!state.events) {
-            return axios.get(
-                'http://teamvillainous.com/api/v1/events'
-            )
-            .then(response => {
-                commit('GET_EVENTS', response.data.events);
+    // Save event
+    return axios
+      .post("//teamvillainous.com/api/v1/events", event, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
+      .then(res => {
+        // Check for errors
+        if (
+          res.data.errors &&
+          res.data.errors[0] &&
+          res.data.errors[0].detail != ""
+        ) {
+          throw res.data.errors[0].detail;
+        } else if (res.data.data.name != "") {
+          commit("ADD_EVENT", res.data.data);
+
+          // Update the image name
+          payload.image.delete("name");
+          payload.image.append("name", res.data.data.id);
+
+          // Save blog entry image
+          axios
+            .post("//teamvillainous.com/api/v1/upload", payload.image, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${getters.token}`
+              }
             })
-            .catch(e => console.log(e));
+            .then(res => res)
+            .catch(e => e);
+
+          return res;
         }
-    },
+      })
+      .catch(e => e);
+  },
 
-    updateEvent: ({commit}, event) => {
-        axios.put('http://teamvillainous.com/api/v1/event/update', event)
+  getEvents: ({ commit, state }) => {
+    // Only hit api if events does not exist yet
+    if (!state.events) {
+      return axios
+        .get("//teamvillainous.com/api/v1/events")
         .then(res => {
-            commit('UPDATE_EVENT', event);
-        })
-        .catch(e => console.log(e));
-    },
+          // Check for errors
+          if (
+            res.data.errors &&
+            res.data.errors[0] &&
+            res.data.errors[0].detail != ""
+          ) {
+            throw res.data.errors[0].detail;
+          } else if (res.data.data.name != "") {
+            commit("SET_EVENTS", res.data.data);
 
-    removeEvent: ({commit}, event_id) => {
-        axios.post('http://teamvillainous.com/api/v1/event/delete', {id: event_id})
-        .then(res => {
-            commit('REMOVE_EVENT', event_id);
+            return res;
+          }
         })
-        .catch(e => console.log(e));
+        .catch(e => e);
     }
-
-}
+  },
+  // Update an event
+  updateEvent: ({ commit, getters }, payload) => {
+    const event = payload.event;
+    return axios
+      .put("//teamvillainous.com/api/v1/events/" + event.id, event, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
+      .then(res => {
+        commit("UPDATE_EVENT", event);
+        return res;
+      })
+      .catch(e => e);
+  },
+  // Remove an event
+  removeEvent: ({ commit, getters }, id) => {
+    return axios
+      .delete("//teamvillainous.com/api/v1/events/" + id, {
+        headers: { Authorization: `Bearer ${getters.token}` }
+      })
+      .then(res => {
+        commit("REMOVE_EVENT", id);
+        return res;
+      })
+      .catch(e => e);
+  }
+};
 
 const getters = {
-    events: state => {
-        return state.events;
+  // Gets all events
+  events: state => {
+    return state.events;
+  },
+  // Gets upcoming events
+  upcomingEvents: state => {
+    if (state.events && state.events.length > 0) {
+      return state.events.filter(event => {
+        return event.status == 1 && new Date(event.end_datetime) > new Date();
+      });
     }
-}
+  },
+  // Gets past events
+  pastEvents: state => {
+    if (state.events && state.events.length > 0) {
+      return state.events.filter(event => {
+        return event.status == 1 && new Date(event.end_datetime) <= new Date();
+      });
+    }
+  },
+  // Gets inactive events
+  inactiveEvents: state => {
+    if (state.events && state.events.length > 0) {
+      return state.events.filter(event => {
+        return event.status != 1;
+      });
+    }
+  },
+  // Gets an event by id
+  event: state => {
+    return id => {
+      if (state.events && state.events.length > 0) {
+        return state.events.find(event => event.id == id);
+      }
+    };
+  }
+};
 
 export default {
-    state,
-    mutations,
-    actions,
-    getters
-}
+  state,
+  mutations,
+  actions,
+  getters
+};

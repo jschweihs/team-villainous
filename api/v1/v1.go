@@ -3,6 +3,7 @@ package v1
 import (
 	apictx "vil/api/context"
 	"vil/api/v1/handlers/blog"
+	"vil/api/v1/handlers/email"
 	"vil/api/v1/handlers/events"
 	"vil/api/v1/handlers/file"
 	"vil/api/v1/handlers/login"
@@ -19,6 +20,7 @@ import (
 func New(ac *apictx.Context, router *httprouter.Router) {
 	// Create all of the API v1 routes
 	blog.New(ac, router)
+	email.New(ac, router)
 	events.New(ac, router)
 	file.New(ac, router)
 	login.New(ac, router)

@@ -29,7 +29,7 @@ type Event struct {
 	Type          int       `json:"type"`
 	GameID        int       `json:"game_id"`
 	Description   string    `json:"description"`
-	ReferralURL   string    `json:"referralURL"`
+	ReferralURL   string    `json:"referral_url"`
 	Status        int       `json:"status"`
 	Placements    []int     `json:"placements"`
 	Users         []int     `json:"users"`
@@ -95,7 +95,7 @@ func HandlePost(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servevents.NewParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("errPARSE: %v\n", err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}
@@ -361,6 +361,7 @@ func HandleUpdate(ac *apictx.Context) http.HandlerFunc {
 		// Parse the parameters from the request body
 		var params servevents.UpdateParams
 		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+			fmt.Printf("%v\n", err)
 			errors.Default(ac.Logger, w, errors.ErrBadRequest)
 			return
 		}

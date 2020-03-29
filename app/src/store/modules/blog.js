@@ -55,7 +55,7 @@ const actions = {
           // Save new entry
           commit("ADD_ENTRY", res.data.data);
 
-          // We probably need to update the image name here
+          // Update the image name
           payload.image.delete("name");
           payload.image.append("name", res.data.data.id);
 

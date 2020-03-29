@@ -358,9 +358,9 @@ export default {
         validFName() {
             return this.user.f_name != "";
         },
+        // validDOB checks if a birth date is valid
         validDOB() {
             if (this.user.birth_date != "") {
-                console.log("birth date", this.user.birth_date);
                 return Validator.validDate(this.user.birth_date);
             }
             return true;
@@ -441,9 +441,8 @@ export default {
     created() {
         // Format date for input field
         if (this.user.birth_date) {
-            const date_array = this.user.birth_date.split("-");
-            this.user.birth_date =
-                date_array[1] + "/" + date_array[2] + "/" + date_array[0];
+            const dates = this.user.birth_date.split("-");
+            this.user.birth_date = dates[1] + "/" + dates[2] + "/" + dates[0];
         }
     },
     directives: { mask }

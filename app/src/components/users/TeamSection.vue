@@ -66,6 +66,6 @@ legend {
     justify-content: center;
     -webkit-align-content: space-around;
     align-content: space-around;
-    margin-bottom: 40px;
+    padding-top: 20px;
 }
 </style>
