@@ -135,17 +135,26 @@ const getters = {
   // Gets upcoming events
   upcomingEvents: state => {
     if (state.events && state.events.length > 0) {
-      return state.events.filter(event => {
+      const events = state.events.filter(event => {
         return event.status == 1 && new Date(event.end_datetime) > new Date();
+      });
+      return events.sort((a, b) => {
+        return new Date(a.start_datetime) - new Date(b.start_datetime);
       });
     }
   },
   // Gets past events
   pastEvents: state => {
     if (state.events && state.events.length > 0) {
-      return state.events.filter(event => {
+      const events = state.events.filter(event => {
         return event.status == 1 && new Date(event.end_datetime) <= new Date();
       });
+      // Return sorted by date
+      return events
+        .sort((a, b) => {
+          return new Date(a.start_datetime) - new Date(b.start_datetime);
+        })
+        .reverse();
     }
   },
   // Gets inactive events
